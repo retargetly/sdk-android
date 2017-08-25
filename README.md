@@ -189,7 +189,7 @@ D/Retargetly -: Event : custom, 500
 
 ## Versioning
 
-We use [GitHub](https://github.com/) for versioning. For the versions available, see the [tags on this repository](https://github.com/nextdots/retargetly-android-lib.git).
+For the versions available, see the [tags on this repository](https://github.com/nextdots/retargetly-android-lib.git).
 
 ## Authors
 
