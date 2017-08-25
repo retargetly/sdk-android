@@ -185,7 +185,7 @@ D/Retargetly -: Event : custom, 500
 
 ## Built With
 
-* [Android Studio](https://developer.android.com/) - Programming language
+* [Android Studio](https://developer.android.com/) - Ide development
 
 ## Versioning
 
