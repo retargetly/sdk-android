@@ -8,7 +8,7 @@ Retargetly is a tracking library for Android.
 
 ```
 Android Studio
-JDK 
+JDK
 ```
 
 # Important
@@ -41,7 +41,7 @@ Add it in the root build.gradle at the end of repositories:
 allprojects {
   repositories {
     ...
-    maven { url 'https://jitpack.io' } 
+    maven { url 'https://jitpack.io' }
   }
 }
 ```
@@ -50,7 +50,7 @@ Add the dependency
 
 ```gradle
 dependencies {
-  compile 'com.github.nextdots:retargetly-android-lib:1.0.+'
+  compile 'com.github.retargetly:sdk-android:1.0.1'
 }
 ```
 
@@ -67,7 +67,7 @@ public class App extends Application {
 
     String uid = "TESTUID15654";
     int pid    = 123456;
-    
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -118,14 +118,14 @@ public class MainActivity extends AppCompatActivity implements CustomEventListen
 
     String uid = "TESTUID15654";
     int pid    = 123456;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        RetargetlyUtils.callCustomEvent(getApplication(),"Custom Event", uid, pid,this); 
+        RetargetlyUtils.callCustomEvent(getApplication(),"Custom Event", uid, pid,this);
     }
-    
+
     @Override
     public void customEventSuccess() {
         Toast.makeText(getApplication(),"Custom event send",Toast.LENGTH_SHORT).show();
@@ -185,11 +185,11 @@ D/Retargetly -: Event : custom, 500
 
 ## Built With
 
-* [Android Studio](https://developer.android.com/) - Programming language
+* [Android Studio](https://developer.android.com/) - Ide development
 
 ## Versioning
 
-We use [GitHub](https://github.com/) for versioning. For the versions available, see the [tags on this repository](https://github.com/nextdots/retargetly-android-lib.git).
+For the versions available, see the [tags on this repository](https://github.com/nextdots/retargetly-android-lib.git).
 
 ## Authors
 
