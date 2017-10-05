@@ -2,8 +2,16 @@ package com.nextdots.retargetly.api;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
+
+import com.nextdots.retargetly.Retargetly;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
+
+import java.io.IOException;
+
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -15,8 +23,22 @@ public class ApiController {
     private ApiService service;
 
     public ApiController(){
+
+        OkHttpClient defaultHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(
+                        new Interceptor() {
+                            @Override
+                            public okhttp3.Response intercept(Chain chain) throws IOException {
+                                Request request = chain.request().newBuilder()
+                                        .addHeader("Accept", "Application/JSON")
+                                        .addHeader("android_hash", Retargetly.android_hash).build();
+                                return chain.proceed(request);
+                            }
+                        }).build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.retargetly.com/")
+                .client(defaultHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

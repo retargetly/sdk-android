@@ -42,7 +42,7 @@ public class RetargetlyUtils {
         String model          = Build.MODEL;
         String idiome         = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, latitude, longitude , Retargetly.uid, Retargetly.application.getPackageName(), Retargetly.pid, manufacturer, model, idiome));
+        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, latitude, longitude , Retargetly.sid, Retargetly.application.getPackageName(), Retargetly.pid, manufacturer, model, idiome));
     }
 
     private static void callEvent(Object value, CustomEventListener customEventListener){
@@ -52,7 +52,7 @@ public class RetargetlyUtils {
         String model          = Build.MODEL;
         String idiome         = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.uid, Retargetly.application.getPackageName(), Retargetly.pid, manufacturer, model, idiome),customEventListener);
+        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.sid, Retargetly.application.getPackageName(), Retargetly.pid, manufacturer, model, idiome),customEventListener);
     }
 
     private static void callEvent(String value, CustomEventListener customEventListener){
@@ -62,7 +62,7 @@ public class RetargetlyUtils {
         String model          = Build.MODEL;
         String idiome         = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.uid, Retargetly.application.getPackageName(), Retargetly.pid, manufacturer, model, idiome),customEventListener);
+        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.sid, Retargetly.application.getPackageName(), Retargetly.pid, manufacturer, model, idiome),customEventListener);
     }
 
     public static String getInstalledApps(Application application) {
