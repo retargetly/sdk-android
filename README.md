@@ -50,7 +50,7 @@ Add the dependency
 
 ```gradle
 dependencies {
-  compile 'com.github.retargetly:sdk-android:1.0.2'
+  compile 'com.github.retargetly:sdk-android:1.0.3'
 }
 ```
 
@@ -58,7 +58,7 @@ dependencies {
 
 You must create a class that extends of application and in the oncreate add the following line
 
-```Retargetly.init(this,uid,pid);```
+```Retargetly.init(this,android_hash,sid,pid);```
 
 ### Example
 
@@ -66,12 +66,13 @@ You must create a class that extends of application and in the oncreate add the 
 public class App extends Application {
 
     String uid = "TESTUID15654";
-    int pid    = 123456;
+    String sid    = 123456;
+    String android_hash = "19N10-F&!Xazt";
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Retargetly.init(this,uid,pid);
+        Retargetly.init(this,android_hash,uid,pid);
     }
 }
 ```
@@ -80,7 +81,7 @@ public class App extends Application {
 
 if you want to force the gps in the application
 
-```Retargetly.init(this,uid,pid,true);```
+```Retargetly.init(this,android_hash,sid,pid,true);```
 
 ### Example
 
@@ -88,13 +89,14 @@ if you want to force the gps in the application
 public class App extends Application {
 
     String uid = "TESTUID15654";
-    int pid    = 123456;
+    String sid    = 123456;
+    String android_hash = "19N10-F&!Xazt";
     boolean forceGps = true;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Retargetly.init(this,uid,pid,forceGps);
+        Retargetly.init(this,android_hash,sid,pid,forceGps);
     }
 }
 ```
@@ -181,9 +183,6 @@ RetargetlyUtils.callCustomEvent("Custom Event");
 
 ```java
 public class MainActivity extends AppCompatActivity implements CustomEventListener {
-
-    String uid = "TESTUID15654";
-    int pid    = 123456;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
