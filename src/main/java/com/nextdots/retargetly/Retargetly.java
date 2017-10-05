@@ -94,6 +94,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     public void onActivityResumed(Activity activity) {
         if (!isFirst) {
 
+            RetargetlyUtils.checkPermissionGps(activity);
             isFirst = true;
             apiController.callCustomEvent(new Event(sid, application.getPackageName(), pid, manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
@@ -104,9 +105,6 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
             Log.d(TAG, "Activity " + activity.getClass().getSimpleName());
 
         }
-
-        if(forceGPS)
-            RetargetlyUtils.checkPermissionGps(activity);
 
         if(!hasSendCoordinate)
             callCoordinateGps(activity);
@@ -156,12 +154,11 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     @Override
     public void onActivityPaused(Activity activity) {
-        DialogGpsUtils.closeDialogSettings();
+
     }
 
     @Override
     public void onActivityStopped(Activity activity) {
-        DialogGpsUtils.closeDialogSettings();
         hasSendCoordinate = false;
     }
 
@@ -172,7 +169,6 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        DialogGpsUtils.closeDialogSettings();
         hasSendCoordinate = false;
     }
 
