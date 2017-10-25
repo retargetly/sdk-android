@@ -30,8 +30,7 @@ public class ApiController {
                             @Override
                             public okhttp3.Response intercept(Chain chain) throws IOException {
                                 Request request = chain.request().newBuilder()
-                                        .addHeader("Accept", "Application/JSON")
-                                        .addHeader("android_hash", Retargetly.android_hash).build();
+                                        .addHeader("Accept", "Application/JSON").build();
                                 return chain.proceed(request);
                             }
                         }).build();

@@ -17,7 +17,6 @@ import android.util.Log;
 import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.models.Event;
-import com.nextdots.retargetly.utils.DialogGpsUtils;
 import com.nextdots.retargetly.utils.RetargetlyUtils;
 
 import java.util.Locale;
@@ -33,9 +32,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private boolean isFirst = false;
     private boolean hasSendCoordinate = false;
 
-    static public String pid;
-    static public String sid;
-    static public String android_hash;
+    static public String source_hash;
 
     private String manufacturer;
     private String model;
@@ -47,34 +44,30 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     private ApiController apiController;
 
-    public static void init(Application application, String android_hash, String sid, String pid){
-        new Retargetly(application,android_hash,sid,pid);
+    public static void init(Application application, String source_hash){
+        new Retargetly(application,source_hash);
     }
 
-    public static void init(Application application, String android_hash, String sid, String pid, boolean forceGPS){
-        new Retargetly(application,android_hash,sid,pid,forceGPS);
+    public static void init(Application application, String source_hash, boolean forceGPS){
+        new Retargetly(application,source_hash,forceGPS);
     }
 
-    private Retargetly(Application application, String android_hash, String sid, String pid){
+    private Retargetly(Application application, String source_hash){
         this.application = application;
         this.manufacturer   = Build.MANUFACTURER;
         this.model          = Build.MODEL;
         this.idiome         = Locale.getDefault().getLanguage();
-        this.sid       = sid;
-        this.pid       = pid;
-        this.android_hash = android_hash;
+        this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
         apiController  = new ApiController();
     }
 
-    private Retargetly(Application application, String android_hash, String sid, String pid, boolean forceGPS){
+    private Retargetly(Application application, String source_hash, boolean forceGPS){
         this.application = application;
         this.manufacturer   = Build.MANUFACTURER;
         this.model          = Build.MODEL;
         this.idiome         = Locale.getDefault().getLanguage();
-        this.sid       = sid;
-        this.pid       = pid;
-        this.android_hash = android_hash;
+        this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
         this.forceGPS = forceGPS;
         apiController  = new ApiController();
@@ -96,12 +89,12 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
             RetargetlyUtils.checkPermissionGps(activity);
             isFirst = true;
-            apiController.callCustomEvent(new Event(sid, application.getPackageName(), pid, manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
+            apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
 
         } else {
 
-            apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, activity.getClass().getSimpleName(), sid, application.getPackageName(), pid, manufacturer, model, idiome));
+            apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, activity.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
             Log.d(TAG, "Activity " + activity.getClass().getSimpleName());
 
         }
@@ -123,7 +116,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
                         super.onFragmentResumed(fm, f);
                         Log.d(TAG, "Fragment: " + f.getClass().getSimpleName());
-                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), sid, application.getPackageName(), pid, manufacturer, model, idiome));
+                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
 
                     }
                 }, false);
@@ -138,7 +131,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
                         super.onFragmentResumed(fm, f);
                         Log.d(TAG, "Fragment: " + f.getClass().getSimpleName());
-                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), sid, application.getPackageName(), pid, manufacturer, model, idiome));
+                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
 
                     }
                 }, false);
@@ -146,7 +139,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
             }
         }else{
 
-            apiController.callCustomEvent(new Event(sid, application.getPackageName(), pid, manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
+            apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "Active Activity " + activity.getClass().getSimpleName());
 
         }
