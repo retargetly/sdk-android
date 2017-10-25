@@ -50,7 +50,7 @@ Add the dependency
 
 ```gradle
 dependencies {
-  compile 'com.github.retargetly:sdk-android:1.0.3'
+  compile 'com.github.retargetly:sdk-android:1.0.4'
 }
 ```
 
@@ -58,21 +58,19 @@ dependencies {
 
 You must create a class that extends of application and in the oncreate add the following line
 
-```Retargetly.init(this,android_hash,sid,pid);```
+```Retargetly.init(this,source_hash);```
 
 ### Example
 
 ```java
 public class App extends Application {
 
-    String uid = "TESTUID15654";
-    String sid    = 123456;
-    String android_hash = "19N10-F&!Xazt";
+    String source_hash = "19N10-F&!Xazt";
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Retargetly.init(this,android_hash,uid,pid);
+        Retargetly.init(this,source_hash);
     }
 }
 ```
@@ -81,22 +79,20 @@ public class App extends Application {
 
 if you want to force the gps in the application
 
-```Retargetly.init(this,android_hash,sid,pid,true);```
+```Retargetly.init(this,source_hash,true);```
 
 ### Example
 
 ```java
 public class App extends Application {
 
-    String uid = "TESTUID15654";
-    String sid    = 123456;
-    String android_hash = "19N10-F&!Xazt";
+    String source_hash = "19N10-F&!Xazt";
     boolean forceGps = true;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Retargetly.init(this,android_hash,sid,pid,forceGps);
+        Retargetly.init(this,source_hash,forceGps);
     }
 }
 ```
