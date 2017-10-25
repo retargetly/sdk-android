@@ -10,7 +10,6 @@ import retrofit2.http.POST;
 public interface ApiService {
 
     @Headers({
-            "android_hash: 23JaJK!#aJWAm",
             "Content-Type: application/json"
     })
 
