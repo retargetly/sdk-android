@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Retargetly</string>
+    <string name="alert_location">Active GPS</string>
+</resources>
