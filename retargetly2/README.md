@@ -8,7 +8,7 @@ Retargetly is a tracking library for Android.
 
 ```
 Android Studio
-JDK 
+JDK
 ```
 
 # Important
@@ -41,7 +41,7 @@ Add it in the root build.gradle at the end of repositories:
 allprojects {
   repositories {
     ...
-    maven { url 'https://jitpack.io' } 
+    maven { url 'https://jitpack.io' }
   }
 }
 ```
@@ -50,7 +50,7 @@ Add the dependency
 
 ```gradle
 dependencies {
-  compile 'com.github.nextdots:retargetly-android-lib:1.0.+'
+  compile 'com.github.retargetly:sdk-android:1.0.6'
 }
 ```
 
@@ -58,35 +58,102 @@ dependencies {
 
 You must create a class that extends of application and in the oncreate add the following line
 
-```Retargetly.init(this,uid,pid);```
+```Retargetly.init(this,source_hash);```
 
 ### Example
 
 ```java
 public class App extends Application {
 
-    String uid = "TESTUID15654";
-    int pid    = 123456;
-    
+    String source_hash = "19N10-F&!Xazt";
+
     @Override
     public void onCreate() {
         super.onCreate();
-        Retargetly.init(this,uid,pid);
+        Retargetly.init(this,source_hash);
     }
 }
 ```
 
+### Force GPS
+
+if you want to force the gps in the application
+
+```Retargetly.init(this,source_hash,true);```
+
+### Example
+
+```java
+public class App extends Application {
+
+    String source_hash = "19N10-F&!Xazt";
+    boolean forceGps = true;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Retargetly.init(this,source_hash,forceGps);
+    }
+}
+```
+
+Forcing gps forces the user to activate the gps with a dialog that goes directly to the location permissions
+
+### Broadcast if GPS is enable/disable
+
+```java
+
+@Override
+protected void onResume() {
+    super.onResume();
+    registerReceiver(gpsEnable, new IntentFilter(ApiConstanst.GPS_ENABLE));
+    registerReceiver(gpsDisable, new IntentFilter(ApiConstanst.GPS_DISABLE));
+}
+
+@Override
+protected void onPause() {
+    super.onPause();
+    unregisterReceiver(gpsEnable);
+    unregisterReceiver(gpsDisable);
+}
+
+public BroadcastReceiver gpsEnable = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.d(TAG,"GPS ENABLED");
+    }
+};
+
+public BroadcastReceiver gpsDisable = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.d(TAG,"GPS DISABLED");
+    }
+};
+```
+
 ### Custom Event
 
-#### Custom event without response
+#### Custom event string without response
 
 ```java
-RetargetlyUtils.callCustomEvent(Application application, String value, String uid, int pid);
+RetargetlyUtils.callCustomEvent(String value);
 ```
-#### Custom event with response
+#### Custom event string with response
 
 ```java
-RetargetlyUtils.callCustomEvent(Application application, String value, String uid, int pid, CustomEventListener customEventListener);
+RetargetlyUtils.callCustomEvent(String value, CustomEventListener customEventListener);
+```
+
+#### Custom event object without response
+
+```java
+RetargetlyUtils.callCustomEvent(Object value);
+```
+#### Custom event object with response
+
+```java
+RetargetlyUtils.callCustomEvent(Object value, CustomEventListener customEventListener);
 ```
 
 #### Response
@@ -104,10 +171,7 @@ public interface CustomEventListener {
 
 ```java
 
-String uid = "TESTUID15654";
-int pid    = 123456;
-
-RetargetlyUtils.callCustomEvent(getApplication(),"Custom Event",uid,pid);
+RetargetlyUtils.callCustomEvent("Custom Event");
 
 ```
 
@@ -116,16 +180,13 @@ RetargetlyUtils.callCustomEvent(getApplication(),"Custom Event",uid,pid);
 ```java
 public class MainActivity extends AppCompatActivity implements CustomEventListener {
 
-    String uid = "TESTUID15654";
-    int pid    = 123456;
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        RetargetlyUtils.callCustomEvent(getApplication(),"Custom Event", uid, pid,this); 
+        RetargetlyUtils.callCustomEvent("Custom Event", this);
     }
-    
+
     @Override
     public void customEventSuccess() {
         Toast.makeText(getApplication(),"Custom event send",Toast.LENGTH_SHORT).show();
@@ -185,11 +246,11 @@ D/Retargetly -: Event : custom, 500
 
 ## Built With
 
-* [Android Studio](https://developer.android.com/) - Programming language
+* [Android Studio](https://developer.android.com/) - Ide development
 
 ## Versioning
 
-We use [GitHub](https://github.com/) for versioning. For the versions available, see the [tags on this repository](https://github.com/nextdots/retargetly-android-lib.git).
+For the versions available, see the [tags on this repository](https://github.com/nextdots/retargetly-android-lib.git).
 
 ## Authors
 
