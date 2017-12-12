@@ -33,6 +33,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private boolean hasSendCoordinate = false;
 
     static public String source_hash;
+    static public String android_id;
 
     private String manufacturer;
     private String model;
