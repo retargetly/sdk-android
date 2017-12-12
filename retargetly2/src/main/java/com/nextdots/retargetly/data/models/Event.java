@@ -1,5 +1,6 @@
 package com.nextdots.retargetly.data.models;
 
+import com.nextdots.retargetly.Retargetly;
 import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.utils.RetargetlyUtils;
 
@@ -27,7 +28,7 @@ public class Event {
         this.device = device;
         this.lan = lan;
         this.apps = apps;
-        this.uid = RetargetlyUtils.getAndroidID();
+        this.uid = Retargetly.android_id;
     }
 
     public Event(String et, String value, String source_hash, String app, String mf, String device, String lan){
@@ -38,7 +39,7 @@ public class Event {
         this.mf = mf;
         this.device = device;
         this.lan = lan;
-        this.uid = RetargetlyUtils.getAndroidID();
+        this.uid = Retargetly.android_id;
     }
 
     public Event(String et, Object value, String source_hash, String app, String mf, String device, String lan){
@@ -49,7 +50,7 @@ public class Event {
         this.mf = mf;
         this.device = device;
         this.lan = lan;
-        this.uid = RetargetlyUtils.getAndroidID();
+        this.uid = Retargetly.android_id;
     }
 
     public Event(String et, String latitude, String longitude, String source_hash, String app, String mf, String device, String lan){
@@ -60,7 +61,7 @@ public class Event {
         this.mf = mf;
         this.device = device;
         this.lan = lan;
-        this.uid = RetargetlyUtils.getAndroidID();
+        this.uid = Retargetly.android_id;
     }
 
     public String getEt() {

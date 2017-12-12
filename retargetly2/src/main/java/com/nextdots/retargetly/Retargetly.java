@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -14,11 +15,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.models.Event;
 import com.nextdots.retargetly.utils.RetargetlyUtils;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -33,7 +39,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private boolean hasSendCoordinate = false;
 
     static public String source_hash;
-    static public String android_id;
+    static public String android_id = "";
 
     private String manufacturer;
     private String model;
@@ -61,6 +67,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
         apiController  = new ApiController();
+        setAndroidID();
     }
 
     private Retargetly(Application application, String source_hash, boolean forceGPS){
@@ -72,6 +79,41 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         this.application.registerActivityLifecycleCallbacks(this);
         this.forceGPS = forceGPS;
         apiController  = new ApiController();
+        setAndroidID();
+    }
+
+    private void setAndroidID(){
+        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                AdvertisingIdClient.Info adInfo;
+
+                String id = "";
+
+                try {
+                    try {
+                        adInfo = AdvertisingIdClient.getAdvertisingIdInfo(Retargetly.application);
+                        id = adInfo.getId();
+                    } catch (GooglePlayServicesRepairableException e) {
+                        e.printStackTrace();
+                    }
+
+                } catch (IOException e) {
+
+                } catch (GooglePlayServicesNotAvailableException e) {
+
+                }
+
+                return id;
+            }
+
+            @Override
+            protected void onPostExecute(String token) {
+                android_id = token;
+            }
+
+        };
+        task.execute();
     }
 
     @Override

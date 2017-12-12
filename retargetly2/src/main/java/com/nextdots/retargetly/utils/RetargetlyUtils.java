@@ -16,7 +16,6 @@ import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
 import java.util.List;
 import java.util.Locale;
-import android.provider.Settings.Secure;
 
 public class RetargetlyUtils {
 
@@ -107,13 +106,5 @@ public class RetargetlyUtils {
                         Manifest.permission.ACCESS_FINE_LOCATION}, 200);
             }
         }
-    }
-
-    public static String getAndroidID(){
-        String uid = Secure.getString(Retargetly.application.getContentResolver(),
-                Secure.ANDROID_ID);
-        if(uid!=null)
-            return uid;
-        return "";
     }
 }
