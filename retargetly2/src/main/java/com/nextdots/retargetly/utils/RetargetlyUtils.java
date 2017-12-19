@@ -14,24 +14,27 @@ import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
+import com.nextdots.retargetly.data.models.EventCustom;
+
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class RetargetlyUtils {
 
-    public static void callCustomEvent(String value){
+    /*public static void callCustomEvent(String value){
         callEvent(value,null);
     }
 
     public static void callCustomEvent(String value, CustomEventListener customEventListener){
         callEvent(value,customEventListener);
-    }
+    }*/
 
-    public static void callCustomEvent(Object value){
+    public static void callCustomEvent(Map<String,String> value){
         callEvent(value,null);
     }
 
-    public static void callCustomEvent(Object value, CustomEventListener customEventListener){
+    public static void callCustomEvent(Map<String,String> value, CustomEventListener customEventListener){
         callEvent(value,customEventListener);
     }
 
@@ -45,14 +48,14 @@ public class RetargetlyUtils {
         apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, latitude, longitude , Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer, model, idiome));
     }
 
-    private static void callEvent(Object value, CustomEventListener customEventListener){
+    private static void callEvent(Map value, CustomEventListener customEventListener){
         ApiController apiController  = new ApiController();
 
         String manufacturer   = Build.MANUFACTURER;
         String model          = Build.MODEL;
         String idiome         = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer, model, idiome),customEventListener);
+        apiController.callCustomEvent(new EventCustom(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer, model, idiome),customEventListener);
     }
 
     private static void callEvent(String value, CustomEventListener customEventListener){

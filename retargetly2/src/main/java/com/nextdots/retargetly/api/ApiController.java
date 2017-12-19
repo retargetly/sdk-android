@@ -6,6 +6,7 @@ import android.util.Log;
 import com.nextdots.retargetly.Retargetly;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
+import com.nextdots.retargetly.data.models.EventCustom;
 
 import java.io.IOException;
 
@@ -60,6 +61,34 @@ public class ApiController {
                     Log.d(ApiConstanst.TAG,"Event : "+event.getEt() + ", value:" + event.getValue() + ", status: " + response.code());
                 else
                     Log.d(ApiConstanst.TAG,"Event : "+event.getEt() + ", status: " + response.code());
+
+                if(customEventListener != null)
+                    customEventListener.customEventSuccess();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Log.e(ApiConstanst.TAG,t.getMessage());
+                if(customEventListener != null)
+                    customEventListener.customEventFailure(t.getMessage());
+            }
+        });
+    }
+
+    public void callCustomEvent(EventCustom event){
+        callEvent(event,null);
+    }
+
+    public void callCustomEvent(EventCustom event, final CustomEventListener customEventListener){
+        callEvent(event,customEventListener);
+    }
+
+    private void callEvent(final EventCustom event,final CustomEventListener customEventListener){
+        service.callEvent(event).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+
+                Log.d(ApiConstanst.TAG,"Event : Custom , value:" + event.getValue().toString() + ", status: " + response.code());
 
                 if(customEventListener != null)
                     customEventListener.customEventSuccess();

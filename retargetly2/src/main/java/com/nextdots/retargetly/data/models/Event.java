@@ -42,17 +42,6 @@ public class Event {
         this.uid = Retargetly.android_id;
     }
 
-    public Event(String et, Object value, String source_hash, String app, String mf, String device, String lan){
-        this.et  = et;
-        this.val = value;
-        this.source_hash = source_hash;
-        this.app = app;
-        this.mf = mf;
-        this.device = device;
-        this.lan = lan;
-        this.uid = Retargetly.android_id;
-    }
-
     public Event(String et, String latitude, String longitude, String source_hash, String app, String mf, String device, String lan){
         this.et  = et;
         this.rPosition = latitude+";"+longitude;

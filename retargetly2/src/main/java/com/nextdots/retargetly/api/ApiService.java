@@ -1,6 +1,7 @@
 package com.nextdots.retargetly.api;
 
 import com.nextdots.retargetly.data.models.Event;
+import com.nextdots.retargetly.data.models.EventCustom;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -15,5 +16,8 @@ public interface ApiService {
 
     @POST("android")
     Call<Void> callEvent(@Body Event event);
+
+    @POST("android")
+    Call<Void> callEvent(@Body EventCustom event);
 
 }
