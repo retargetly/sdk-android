@@ -50,7 +50,7 @@ Add the dependency
 
 ```gradle
 dependencies {
-  compile 'com.github.retargetly:sdk-android:1.0.6.1'
+  compile 'com.github.retargetly:sdk-android:1.0.7'
 }
 ```
 
@@ -134,26 +134,15 @@ public BroadcastReceiver gpsDisable = new BroadcastReceiver() {
 
 ### Custom Event
 
-#### Custom event string without response
+#### Custom event map without response
 
 ```java
-RetargetlyUtils.callCustomEvent(String value);
+RetargetlyUtils.callCustomEvent(Map<String,String> value);
 ```
-#### Custom event string with response
+#### Custom event map with response
 
 ```java
-RetargetlyUtils.callCustomEvent(String value, CustomEventListener customEventListener);
-```
-
-#### Custom event object without response
-
-```java
-RetargetlyUtils.callCustomEvent(Object value);
-```
-#### Custom event object with response
-
-```java
-RetargetlyUtils.callCustomEvent(Object value, CustomEventListener customEventListener);
+RetargetlyUtils.callCustomEvent(Map<String,String> value, CustomEventListener customEventListener);
 ```
 
 #### Response
@@ -167,11 +156,12 @@ public interface CustomEventListener {
 
 ### Custom Events Example
 
-#### Custom event without response
+#### Custom event map without response
 
 ```java
-
-RetargetlyUtils.callCustomEvent("Custom Event");
+Map obj = new HashMap();
+obj.put("Event","Test Event");
+RetargetlyUtils.callCustomEvent(obj);
 
 ```
 
@@ -184,7 +174,9 @@ public class MainActivity extends AppCompatActivity implements CustomEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        RetargetlyUtils.callCustomEvent("Custom Event", this);
+        Map obj = new HashMap();
+        obj.put("Event","Test Event");
+        RetargetlyUtils.callCustomEvent(obj, this);
     }
 
     @Override
@@ -238,7 +230,7 @@ D/Retargetly -: Event : change, 500
 
 ```xml
 //Success
-D/Retargetly -: Event : custom, value:Test Custom Event, status: 200
+D/Retargetly -: Event : Custom , value:{Event=Test event}, status: 200
 
 //Failure
 D/Retargetly -: Event : custom, 500
