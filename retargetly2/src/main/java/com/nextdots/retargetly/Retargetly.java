@@ -47,7 +47,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     private boolean forceGPS = false;
 
-    private Activity currentActivity;
+    //private Activity currentActivity;
 
     private ApiController apiController;
 
@@ -145,7 +145,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         if(!hasSendCoordinate)
             callCoordinateGps(activity);
 
-        if(currentActivity != activity) {
+        /*if(currentActivity != activity) {
 
             currentActivity = activity;
 
@@ -185,7 +185,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
             apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "Active Activity " + activity.getClass().getSimpleName());
 
-        }
+        }*/
     }
 
     @Override
