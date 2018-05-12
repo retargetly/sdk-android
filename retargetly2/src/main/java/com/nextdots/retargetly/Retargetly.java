@@ -130,7 +130,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     public void onActivityResumed(Activity activity) {
         if (!isFirst) {
 
-            RetargetlyUtils.checkPermissionGps(activity);
+            //RetargetlyUtils.checkPermissionGps(activity);
             isFirst = true;
             apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
