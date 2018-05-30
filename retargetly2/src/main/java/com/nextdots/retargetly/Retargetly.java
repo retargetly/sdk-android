@@ -31,6 +31,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     private boolean isFirst = false;
     private boolean hasSendCoordinate = false;
+    private boolean sendGeoData = true;
 
     static public String source_hash;
 
@@ -52,6 +53,10 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         new Retargetly(application,source_hash,forceGPS);
     }
 
+    public static void init(Application application, String source_hash, boolean forceGPS, boolean sendGeoData){
+        new Retargetly(application,source_hash,forceGPS, sendGeoData);
+    }
+
     private Retargetly(Application application, String source_hash){
         this.application = application;
         this.manufacturer   = Build.MANUFACTURER;
@@ -70,6 +75,18 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
         this.forceGPS = forceGPS;
+        apiController  = new ApiController();
+    }
+
+    private Retargetly(Application application, String source_hash, boolean forceGPS, boolean sendGeoData){
+        this.application = application;
+        this.manufacturer   = Build.MANUFACTURER;
+        this.model          = Build.MODEL;
+        this.idiome         = Locale.getDefault().getLanguage();
+        this.source_hash = source_hash;
+        this.application.registerActivityLifecycleCallbacks(this);
+        this.forceGPS = forceGPS;
+        this.sendGeoData = sendGeoData;
         apiController  = new ApiController();
     }
 
@@ -191,7 +208,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG,"GPS onLocationChanged");
-        if((location.getLatitude()!=0 && location.getLongitude()!=0) && !hasSendCoordinate) {
+        if((location.getLatitude()!=0 && location.getLongitude()!=0) && !hasSendCoordinate && sendGeoData) {
             hasSendCoordinate = true;
             Log.d(TAG, "Latitude: " + location.getLatitude());
             Log.d(TAG, "Longitude: " + location.getLongitude());
