@@ -1,6 +1,7 @@
 package com.nextdots.retargetly;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.pm.PackageManager;
@@ -14,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+
 import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.models.Event;
@@ -45,49 +47,49 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     private ApiController apiController;
 
-    public static void init(Application application, String source_hash){
-        new Retargetly(application,source_hash);
+    public static void init(Application application, String source_hash) {
+        new Retargetly(application, source_hash);
     }
 
-    public static void init(Application application, String source_hash, boolean forceGPS){
-        new Retargetly(application,source_hash,forceGPS);
+    public static void init(Application application, String source_hash, boolean forceGPS) {
+        new Retargetly(application, source_hash, forceGPS);
     }
 
-    public static void init(Application application, String source_hash, boolean forceGPS, boolean sendGeoData){
-        new Retargetly(application,source_hash,forceGPS, sendGeoData);
+    public static void init(Application application, String source_hash, boolean forceGPS, boolean sendGeoData) {
+        new Retargetly(application, source_hash, forceGPS, sendGeoData);
     }
 
-    private Retargetly(Application application, String source_hash){
+    private Retargetly(Application application, String source_hash) {
         this.application = application;
-        this.manufacturer   = Build.MANUFACTURER;
-        this.model          = Build.MODEL;
-        this.idiome         = Locale.getDefault().getLanguage();
+        this.manufacturer = Build.MANUFACTURER;
+        this.model = Build.MODEL;
+        this.idiome = Locale.getDefault().getLanguage();
         this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
-        apiController  = new ApiController();
+        apiController = new ApiController();
     }
 
-    private Retargetly(Application application, String source_hash, boolean forceGPS){
+    private Retargetly(Application application, String source_hash, boolean forceGPS) {
         this.application = application;
-        this.manufacturer   = Build.MANUFACTURER;
-        this.model          = Build.MODEL;
-        this.idiome         = Locale.getDefault().getLanguage();
+        this.manufacturer = Build.MANUFACTURER;
+        this.model = Build.MODEL;
+        this.idiome = Locale.getDefault().getLanguage();
         this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
         this.forceGPS = forceGPS;
-        apiController  = new ApiController();
+        apiController = new ApiController();
     }
 
-    private Retargetly(Application application, String source_hash, boolean forceGPS, boolean sendGeoData){
+    private Retargetly(Application application, String source_hash, boolean forceGPS, boolean sendGeoData) {
         this.application = application;
-        this.manufacturer   = Build.MANUFACTURER;
-        this.model          = Build.MODEL;
-        this.idiome         = Locale.getDefault().getLanguage();
+        this.manufacturer = Build.MANUFACTURER;
+        this.model = Build.MODEL;
+        this.idiome = Locale.getDefault().getLanguage();
         this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
         this.forceGPS = forceGPS;
         this.sendGeoData = sendGeoData;
-        apiController  = new ApiController();
+        apiController = new ApiController();
     }
 
     @Override
@@ -104,7 +106,9 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     public void onActivityResumed(Activity activity) {
         if (!isFirst) {
 
-            RetargetlyUtils.checkPermissionGps(activity);
+            if (forceGPS)
+                RetargetlyUtils.checkPermissionGps(activity);
+
             isFirst = true;
             apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
@@ -116,10 +120,10 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
         }
 
-        if(!hasSendCoordinate)
+        if (!hasSendCoordinate && sendGeoData)
             callCoordinateGps(activity);
 
-        if(currentActivity != activity) {
+        if (currentActivity != activity) {
 
             currentActivity = activity;
 
@@ -154,7 +158,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
                 }, false);
 
             }
-        }else{
+        } else {
 
             apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "Active Activity " + activity.getClass().getSimpleName());
@@ -182,7 +186,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         hasSendCoordinate = false;
     }
 
-    private void callCoordinateGps(Activity activity){
+    private void callCoordinateGps(Activity activity) {
         long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
 
         long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
@@ -199,7 +203,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
                             MIN_TIME_BW_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
         }
@@ -207,12 +211,12 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG,"GPS onLocationChanged");
-        if((location.getLatitude()!=0 && location.getLongitude()!=0) && !hasSendCoordinate && sendGeoData) {
+        Log.d(TAG, "GPS onLocationChanged");
+        if ((location.getLatitude() != 0 && location.getLongitude() != 0) && !hasSendCoordinate && sendGeoData) {
             hasSendCoordinate = true;
             Log.d(TAG, "Latitude: " + location.getLatitude());
             Log.d(TAG, "Longitude: " + location.getLongitude());
-            RetargetlyUtils.callEventCoordinate(location.getLatitude()+"",location.getLongitude()+"");
+            RetargetlyUtils.callEventCoordinate(location.getLatitude() + "", location.getLongitude() + "");
         }
     }
 
