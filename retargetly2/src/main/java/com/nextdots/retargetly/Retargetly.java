@@ -106,7 +106,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     public void onActivityResumed(Activity activity) {
         if (!isFirst) {
 
-            if (forceGPS)
+            if (sendGeoData && forceGPS)
                 RetargetlyUtils.checkPermissionGps(activity);
 
             isFirst = true;
