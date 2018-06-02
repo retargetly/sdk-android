@@ -3,6 +3,8 @@ package com.nextdots.retargetly.api;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.nextdots.retargetly.Retargetly;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
@@ -21,7 +23,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiController {
 
     private ApiService service;
-
+    public int motionFrequency= 300;
+    public int staticFrequency= 1800;
+    public int motionTreshold= 300;
+    public int motionDetectionFrequency = 20;
     public ApiController(){
 
         OkHttpClient defaultHttpClient = new OkHttpClient.Builder()
@@ -52,6 +57,38 @@ public class ApiController {
         callEvent(event,customEventListener);
     }
 
+    public void callInitData(String api){
+        service.callInit(api).enqueue(new Callback<JsonElement>() {
+            @Override
+            public void onResponse(Call<JsonElement> call, Response<JsonElement> response) {
+                if(response.body()!=null){
+                    final JsonObject json = response.body().getAsJsonObject();
+                    if(json!=null){
+                        final JsonObject jsonResponse = json.getAsJsonObject("response");
+                        if(jsonResponse!=null){
+                            motionDetectionFrequency = jsonResponse
+                                    .get("motionDetectionFrequency").getAsInt();
+                            motionFrequency = jsonResponse
+                                    .get("motionFrequency").getAsInt();
+                            motionTreshold = jsonResponse
+                                    .get("motionTreshold").getAsInt();
+                            staticFrequency = jsonResponse
+                                    .get("staticFrequency").getAsInt();
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonElement> call, Throwable t) {
+                t.printStackTrace();
+            }
+
+
+        });
+
+    }
     private void callEvent(final Event event,final CustomEventListener customEventListener){
         service.callEvent(event).enqueue(new Callback<Void>() {
             @Override
