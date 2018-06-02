@@ -67,7 +67,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
         apiController = new ApiController();
-        apiController.callInitData(source_hash);
+       getDefaultParams();
     }
 
     private Retargetly(Application application, String source_hash, boolean forceGPS) {
@@ -79,7 +79,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         this.application.registerActivityLifecycleCallbacks(this);
         this.forceGPS = forceGPS;
         apiController = new ApiController();
-        apiController.callInitData(source_hash);
+       getDefaultParams();
     }
 
     private Retargetly(Application application, String source_hash, boolean forceGPS, boolean sendGeoData) {
@@ -92,7 +92,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         this.forceGPS = forceGPS;
         this.sendGeoData = sendGeoData;
         apiController = new ApiController();
-        apiController.callInitData(source_hash);
+       getDefaultParams();
     }
 
     @Override
@@ -233,5 +233,10 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     @Override
     public void onProviderDisabled(String s) {
+    }
+
+    private void getDefaultParams(){
+        if(sendGeoData && RetargetlyUtils.hasLocationEnabled(application))
+            apiController.callInitData(source_hash);
     }
 }

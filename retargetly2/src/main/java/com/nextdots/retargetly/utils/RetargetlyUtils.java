@@ -3,6 +3,7 @@ package com.nextdots.retargetly.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -16,6 +17,8 @@ import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
 import java.util.List;
 import java.util.Locale;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 public class RetargetlyUtils {
 
@@ -82,8 +85,8 @@ public class RetargetlyUtils {
     }
 
 
-    public static boolean hasLocationEnabled(Activity activity){
-        LocationManager locationManager = (LocationManager) activity.getSystemService(activity.LOCATION_SERVICE);
+    public static boolean hasLocationEnabled(Context context){
+        LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             return true;
