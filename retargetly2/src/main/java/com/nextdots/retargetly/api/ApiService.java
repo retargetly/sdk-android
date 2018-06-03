@@ -9,6 +9,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
 
 public interface ApiService {
 
@@ -21,5 +22,8 @@ public interface ApiService {
 
     @GET("sdk/params")
     Call<JsonElement> callInit(@Query("source_hash") String source_hash);
+
+    @GET
+    Call<JsonElement> callDynamic(@Url String url);
 
 }

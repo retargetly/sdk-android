@@ -8,13 +8,19 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+
 import com.nextdots.retargetly.Retargetly;
 import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -45,7 +51,9 @@ public class RetargetlyUtils {
         String model          = Build.MODEL;
         String idiome         = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, latitude, longitude , Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer, model, idiome));
+        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, latitude, longitude ,
+                Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer,
+                model, idiome, Retargetly.nWifi));
     }
 
     private static void callEvent(Object value, CustomEventListener customEventListener){
@@ -55,7 +63,11 @@ public class RetargetlyUtils {
         String model          = Build.MODEL;
         String idiome         = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer, model, idiome),customEventListener);
+        apiController.callCustomEvent(
+                new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash,
+                        Retargetly.application.getPackageName(), manufacturer, model, idiome,
+                        Retargetly.nWifi)
+                ,customEventListener);
     }
 
     private static void callEvent(String value, CustomEventListener customEventListener){
@@ -65,7 +77,11 @@ public class RetargetlyUtils {
         String model          = Build.MODEL;
         String idiome         = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer, model, idiome),customEventListener);
+        apiController.callCustomEvent(
+                new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash,
+                        Retargetly.application.getPackageName(), manufacturer, model, idiome,
+                        Retargetly.nWifi),
+                customEventListener);
     }
 
     public static String getInstalledApps(Application application) {
@@ -109,5 +125,21 @@ public class RetargetlyUtils {
                         Manifest.permission.ACCESS_FINE_LOCATION}, 200);
             }
         }
+    }
+
+    public static String getCurrentSsid(Application context) {
+        String ssid = "";
+        try {
+            ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            if (networkInfo.isConnected()) {
+                final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+                if (connectionInfo != null) {
+                    ssid = connectionInfo.getSSID();
+                }
+            }
+        }catch (Exception e){e.printStackTrace();}
+        return ssid;
     }
 }

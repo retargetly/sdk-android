@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.nextdots.retargetly.Retargetly;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
 
@@ -20,13 +19,20 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.nextdots.retargetly.api.ApiConstanst.TAG;
+
 public class ApiController {
 
     private ApiService service;
+    /*
+    Creamos e inicializamos las variables con sus valores por default
+     */
     public int motionFrequency= 300;
     public int staticFrequency= 1800;
     public int motionTreshold= 300;
     public int motionDetectionFrequency = 20;
+    public String ip = "";
+
     public ApiController(){
 
         OkHttpClient defaultHttpClient = new OkHttpClient.Builder()
@@ -50,13 +56,32 @@ public class ApiController {
     }
 
     public void callCustomEvent(Event event){
+        event.ip = ip;
+        Log.e(getClass().getName(), "ip "+ip);
         callEvent(event,null);
     }
 
     public void callCustomEvent(Event event,final CustomEventListener customEventListener){
         callEvent(event,customEventListener);
     }
+    public void callIp(){
+        service.callDynamic("http://www.ip-api.com/json").enqueue(new Callback<JsonElement>() {
+            @Override
+            public void onResponse(Call<JsonElement> call, Response<JsonElement> response) {
+                if(response.body()!=null){
+                    final JsonObject json = response.body().getAsJsonObject();
+                    if(json!=null){
+                        ip = json.get("query").getAsString();
+                    }
+                }
+            }
 
+            @Override
+            public void onFailure(Call<JsonElement> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
     public void callInitData(String api){
         service.callInit(api).enqueue(new Callback<JsonElement>() {
             @Override
@@ -94,9 +119,9 @@ public class ApiController {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 if(event.getEt() != ApiConstanst.EVENT_OPEN)
-                    Log.d(ApiConstanst.TAG,"Event : "+event.getEt() + ", value:" + event.getValue() + ", status: " + response.code());
+                    Log.d(TAG,"Event : "+event.getEt() + ", value:" + event.getValue() + ", status: " + response.code());
                 else
-                    Log.d(ApiConstanst.TAG,"Event : "+event.getEt() + ", status: " + response.code());
+                    Log.d(TAG,"Event : "+event.getEt() + ", status: " + response.code());
 
                 if(customEventListener != null)
                     customEventListener.customEventSuccess();
@@ -104,7 +129,7 @@ public class ApiController {
 
             @Override
             public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                Log.e(ApiConstanst.TAG,t.getMessage());
+                Log.e(TAG,t.getMessage());
                 if(customEventListener != null)
                     customEventListener.customEventFailure(t.getMessage());
             }
