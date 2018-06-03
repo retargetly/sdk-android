@@ -53,7 +53,7 @@ public class RetargetlyUtils {
 
         apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, latitude, longitude ,
                 Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer,
-                model, idiome, Retargetly.nWifi));
+                model, idiome));
     }
 
     private static void callEvent(Object value, CustomEventListener customEventListener){
@@ -65,8 +65,7 @@ public class RetargetlyUtils {
 
         apiController.callCustomEvent(
                 new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash,
-                        Retargetly.application.getPackageName(), manufacturer, model, idiome,
-                        Retargetly.nWifi)
+                        Retargetly.application.getPackageName(), manufacturer, model, idiome)
                 ,customEventListener);
     }
 
@@ -79,8 +78,7 @@ public class RetargetlyUtils {
 
         apiController.callCustomEvent(
                 new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash,
-                        Retargetly.application.getPackageName(), manufacturer, model, idiome,
-                        Retargetly.nWifi),
+                        Retargetly.application.getPackageName(), manufacturer, model, idiome),
                 customEventListener);
     }
 
@@ -127,13 +125,13 @@ public class RetargetlyUtils {
         }
     }
 
-    public static String getCurrentSsid(Application context) {
+    public static String getCurrentSsid(Context context) {
         String ssid = "";
         try {
             ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (networkInfo.isConnected()) {
-                final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                final WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                 final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
                 if (connectionInfo != null) {
                     ssid = connectionInfo.getSSID();

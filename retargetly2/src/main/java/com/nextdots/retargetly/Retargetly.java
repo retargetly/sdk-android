@@ -1,8 +1,10 @@
 package com.nextdots.retargetly;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -18,12 +20,14 @@ import android.util.Log;
 import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.models.Event;
+import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
 import com.nextdots.retargetly.utils.RetargetlyUtils;
 
 import java.util.Locale;
 
 
 import static android.content.Context.LOCATION_SERVICE;
+import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static com.nextdots.retargetly.api.ApiConstanst.TAG;
 
 
@@ -46,7 +50,6 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private Activity currentActivity;
 
     private ApiController apiController;
-    public static String nWifi;
 
     public static void init(Application application, String source_hash) {
         new Retargetly(application, source_hash);
@@ -114,12 +117,12 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
                 RetargetlyUtils.checkPermissionGps(activity);
 
             isFirst = true;
-            apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application), nWifi));
+            apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
 
         } else {
 
-            apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, activity.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome, nWifi));
+            apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, activity.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
             Log.d(TAG, "Activity " + activity.getClass().getSimpleName());
 
         }
@@ -141,7 +144,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
                         super.onFragmentResumed(fm, f);
                         Log.d(TAG, "Fragment: " + f.getClass().getSimpleName());
-                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome, nWifi));
+                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
 
                     }
                 }, false);
@@ -156,7 +159,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
                         super.onFragmentResumed(fm, f);
                         Log.d(TAG, "Fragment: " + f.getClass().getSimpleName());
-                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome, nWifi));
+                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
 
                     }
                 }, false);
@@ -164,7 +167,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
             }
         } else {
 
-            apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application), nWifi));
+            apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
             Log.d(TAG, "Active Activity " + activity.getClass().getSimpleName());
 
         }
@@ -241,9 +244,12 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private void getDefaultParams() {
         if (sendGeoData && RetargetlyUtils.hasLocationEnabled(application))
             apiController.callInitData(source_hash);
-        apiController.callIp();
+        getIp();
+    }
 
-        nWifi = RetargetlyUtils.getCurrentSsid(application);
-        Log.e("prueba", "ssid " + nWifi);
+    private void getIp(){
+        IntentFilter intentFilter = new IntentFilter(CONNECTIVITY_ACTION);
+        application.registerReceiver(new NetworkBroadCastReceiver(),
+                intentFilter);
     }
 }

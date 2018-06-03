@@ -1,5 +1,6 @@
 package com.nextdots.retargetly.api;
 
+import android.content.BroadcastReceiver;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -7,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
+import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
 
 import java.io.IOException;
 
@@ -31,7 +33,7 @@ public class ApiController {
     public int staticFrequency= 1800;
     public int motionTreshold= 300;
     public int motionDetectionFrequency = 20;
-    public String ip = "";
+    public static String ip = "";
 
     public ApiController(){
 
@@ -57,7 +59,7 @@ public class ApiController {
 
     public void callCustomEvent(Event event){
         event.ip = ip;
-        Log.e(getClass().getName(), "ip "+ip);
+        event.nwifi = NetworkBroadCastReceiver.nWifi;
         callEvent(event,null);
     }
 
@@ -119,9 +121,13 @@ public class ApiController {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 if(event.getEt() != ApiConstanst.EVENT_OPEN)
-                    Log.d(TAG,"Event : "+event.getEt() + ", value:" + event.getValue() + ", status: " + response.code());
+                    Log.d(TAG,"Event : "+event.getEt() + ", " +
+                            "value:" + event.getValue() + ", " +
+                            "status: " + response.code()+", "+
+                            "IP: "+event.ip+", nWifi "+event.nwifi);
                 else
-                    Log.d(TAG,"Event : "+event.getEt() + ", status: " + response.code());
+                    Log.d(TAG,"Event : "+event.getEt() + ", status: " + response.code()+", "+
+                            "IP: "+event.ip+", nWifi "+event.nwifi);
 
                 if(customEventListener != null)
                     customEventListener.customEventSuccess();
