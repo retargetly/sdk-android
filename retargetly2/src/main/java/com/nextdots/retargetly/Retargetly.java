@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -112,65 +113,12 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     @Override
     public void onActivityResumed(Activity activity) {
         if (!isFirst) {
-
-            if (sendGeoData && forceGPS)
-                RetargetlyUtils.checkPermissionGps(activity);
-
+            hasPermission(activity);
             isFirst = true;
-            apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
+            sendOpenEvent();
             Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
-
-        } else {
-
-            apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, activity.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
-            Log.d(TAG, "Activity " + activity.getClass().getSimpleName());
-
         }
-
-        if (!hasSendCoordinate && sendGeoData)
-            callCoordinateGps(activity);
-
-        if (currentActivity != activity) {
-
-            currentActivity = activity;
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-
-                FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
-
-                fm.registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
-                    @Override
-                    public void onFragmentResumed(FragmentManager fm, Fragment f) {
-
-                        super.onFragmentResumed(fm, f);
-                        Log.d(TAG, "Fragment: " + f.getClass().getSimpleName());
-                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
-
-                    }
-                }, false);
-
-            } else {
-
-                android.app.FragmentManager fm = activity.getFragmentManager();
-
-                fm.registerFragmentLifecycleCallbacks(new android.app.FragmentManager.FragmentLifecycleCallbacks() {
-                    @Override
-                    public void onFragmentResumed(android.app.FragmentManager fm, android.app.Fragment f) {
-
-                        super.onFragmentResumed(fm, f);
-                        Log.d(TAG, "Fragment: " + f.getClass().getSimpleName());
-                        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CHANGE, f.getClass().getSimpleName(), source_hash, application.getPackageName(), manufacturer, model, idiome));
-
-                    }
-                }, false);
-
-            }
-        } else {
-
-            apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
-            Log.d(TAG, "Active Activity " + activity.getClass().getSimpleName());
-
-        }
+        sendGeoEvent(application);
     }
 
     @Override
@@ -193,8 +141,8 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         hasSendCoordinate = false;
     }
 
-    private void callCoordinateGps(Activity activity) {
-        long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1;
+    private void callCoordinateGps(Context activity) {
+        long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
 
         long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
 
@@ -223,6 +171,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
             hasSendCoordinate = true;
             Log.d(TAG, "Latitude: " + location.getLatitude());
             Log.d(TAG, "Longitude: " + location.getLongitude());
+            Log.d(TAG, "Send geo event");
             RetargetlyUtils.callEventCoordinate(
                     String.valueOf(location.getLatitude()),
                     String.valueOf(location.getLongitude()));
@@ -252,4 +201,20 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         application.registerReceiver(new NetworkBroadCastReceiver(),
                 intentFilter);
     }
+
+    private void sendOpenEvent(){
+        Log.d(TAG, "Send open event");
+        apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
+    }
+
+    private void sendGeoEvent(Context context){
+        if (!hasSendCoordinate && sendGeoData)
+            callCoordinateGps(context);
+    }
+
+    private void hasPermission(Activity activity){
+        if (sendGeoData && forceGPS)
+            RetargetlyUtils.checkPermissionGps(activity);
+    }
+
 }

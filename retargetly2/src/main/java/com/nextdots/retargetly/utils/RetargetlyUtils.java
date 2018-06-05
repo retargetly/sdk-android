@@ -51,7 +51,7 @@ public class RetargetlyUtils {
         String model          = Build.MODEL;
         String idiome         = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_CUSTOM, latitude, longitude ,
+        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_GEO, latitude, longitude ,
                 Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer,
                 model, idiome));
     }
