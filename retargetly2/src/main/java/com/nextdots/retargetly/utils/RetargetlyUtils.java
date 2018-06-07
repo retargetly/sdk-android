@@ -21,6 +21,8 @@ import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
 
+import org.json.JSONObject;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -54,6 +56,24 @@ public class RetargetlyUtils {
         apiController.callCustomEvent(new Event(ApiConstanst.EVENT_GEO, latitude, longitude ,
                 Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer,
                 model, idiome));
+    }
+
+    public static void callEventDeeplink(String url){
+        try {
+            ApiController apiController = new ApiController();
+
+            String manufacturer = Build.MANUFACTURER;
+            String model = Build.MODEL;
+            String idiome = Locale.getDefault().getLanguage();
+            JSONObject value = new JSONObject();
+            value.put("value", url);
+
+            apiController.callCustomEvent(
+                    new Event(ApiConstanst.EVENT_DEEPLINK, value, Retargetly.source_hash,
+                            Retargetly.application.getPackageName(), manufacturer, model, idiome)
+                    , null);
+        }catch (Exception e){e.printStackTrace();}
+
     }
 
     private static void callEvent(Object value, CustomEventListener customEventListener){

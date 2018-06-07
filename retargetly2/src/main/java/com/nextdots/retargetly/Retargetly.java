@@ -197,6 +197,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     }
 
     private void getIp(){
+        NetworkBroadCastReceiver.getIp(application);
         IntentFilter intentFilter = new IntentFilter(CONNECTIVITY_ACTION);
         application.registerReceiver(new NetworkBroadCastReceiver(),
                 intentFilter);

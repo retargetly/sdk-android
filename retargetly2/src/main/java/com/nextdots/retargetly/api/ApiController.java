@@ -64,6 +64,8 @@ public class ApiController {
     }
 
     public void callCustomEvent(Event event,final CustomEventListener customEventListener){
+        event.ip = ip;
+        event.nwifi = NetworkBroadCastReceiver.nWifi;
         callEvent(event,customEventListener);
     }
     public void callIp(){

@@ -23,7 +23,7 @@ public class NetworkBroadCastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void getIp(Context context){
+    public static void getIp(Context context){
         final ApiController apiController = new ApiController();
         apiController.callIp();
         nWifi = RetargetlyUtils.getCurrentSsid(context);
