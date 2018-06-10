@@ -20,88 +20,91 @@ import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
+import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.content.Context.LOCATION_SERVICE;
 
 public class RetargetlyUtils {
 
-    public static void callCustomEvent(String value){
-        callEvent(value,null);
+    public static void callCustomEvent(Map value) {
+        callEvent(value, null);
     }
 
-    public static void callCustomEvent(String value, CustomEventListener customEventListener){
-        callEvent(value,customEventListener);
+    public static void callCustomEvent(Map value, CustomEventListener customEventListener) {
+        callEvent(value, customEventListener);
     }
 
-    public static void callCustomEvent(Object value){
-        callEvent(value,null);
-    }
+    public static void callEventCoordinate(String latitude, String longitude) {
+        ApiController apiController = new ApiController();
 
-    public static void callCustomEvent(Object value, CustomEventListener customEventListener){
-        callEvent(value,customEventListener);
-    }
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        String idiome = Locale.getDefault().getLanguage();
 
-    public static void callEventCoordinate(String latitude, String longitude){
-        ApiController apiController  = new ApiController();
-
-        String manufacturer   = Build.MANUFACTURER;
-        String model          = Build.MODEL;
-        String idiome         = Locale.getDefault().getLanguage();
-
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_GEO, latitude, longitude ,
+        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_GEO, latitude, longitude,
                 Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer,
-                model, idiome));
+                model, idiome,
+                NetworkBroadCastReceiver.nWifi.replaceAll("\"",""),
+                getAppName(Retargetly.application)));
     }
 
-    public static void callEventDeeplink(String url){
+    public static void callEventDeeplink(final String url) {
         try {
-            ApiController apiController = new ApiController();
-
-            String manufacturer = Build.MANUFACTURER;
-            String model = Build.MODEL;
-            String idiome = Locale.getDefault().getLanguage();
-            JSONObject value = new JSONObject();
-            value.put("value", url);
-
-            apiController.callCustomEvent(
-                    new Event(ApiConstanst.EVENT_DEEPLINK, value, Retargetly.source_hash,
-                            Retargetly.application.getPackageName(), manufacturer, model, idiome)
-                    , null);
-        }catch (Exception e){e.printStackTrace();}
+            final ApiController apiController = new ApiController();
+            final String manufacturer = Build.MANUFACTURER;
+            final String model = Build.MODEL;
+            final String idiome = Locale.getDefault().getLanguage();
+            final Map<String, String> map = new HashMap<>();
+            map.put("url", url);
+            if (ApiController.ip != null && ApiController.ip.length() > 0) {
+                apiController.callCustomEvent(
+                        new Event(ApiConstanst.EVENT_DEEPLINK, map , Retargetly.source_hash,
+                                Retargetly.application.getPackageName(), manufacturer, model,
+                                idiome, getAppName(Retargetly.application))
+                        , null);
+            } else {
+                apiController.callIp(new ApiController.ListenerSendInfo() {
+                    @Override
+                    public void finishRequest() {
+                        apiController.callCustomEvent(
+                                new Event(ApiConstanst.EVENT_DEEPLINK, map, Retargetly.source_hash,
+                                        Retargetly.application.getPackageName(), manufacturer,
+                                        model, idiome,getAppName(Retargetly.application))
+                                , null);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
-    private static void callEvent(Object value, CustomEventListener customEventListener){
-        ApiController apiController  = new ApiController();
+    private static void callEvent(Map value, CustomEventListener customEventListener) {
+        ApiController apiController = new ApiController();
 
-        String manufacturer   = Build.MANUFACTURER;
-        String model          = Build.MODEL;
-        String idiome         = Locale.getDefault().getLanguage();
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        String idiome = Locale.getDefault().getLanguage();
 
         apiController.callCustomEvent(
-                new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash,
-                        Retargetly.application.getPackageName(), manufacturer, model, idiome)
-                ,customEventListener);
+                new Event(ApiConstanst.EVENT_CUSTOM, value, Retargetly.source_hash,
+                        Retargetly.application.getPackageName(), manufacturer, model, idiome,
+                        getAppName(Retargetly.application))
+                , customEventListener);
     }
 
-    private static void callEvent(String value, CustomEventListener customEventListener){
-        ApiController apiController  = new ApiController();
-
-        String manufacturer   = Build.MANUFACTURER;
-        String model          = Build.MODEL;
-        String idiome         = Locale.getDefault().getLanguage();
-
-        apiController.callCustomEvent(
-                new Event(ApiConstanst.EVENT_CUSTOM, value , Retargetly.source_hash,
-                        Retargetly.application.getPackageName(), manufacturer, model, idiome),
-                customEventListener);
+    public static String getAppName(Application application){
+        return application.getPackageManager()
+                .getApplicationLabel(application.getApplicationInfo()).toString();
     }
-
     public static String getInstalledApps(Application application) {
         String result = "";
         List<PackageInfo> packs = application.getPackageManager().getInstalledPackages(0);
@@ -119,17 +122,17 @@ public class RetargetlyUtils {
     }
 
 
-    public static boolean hasLocationEnabled(Context context){
+    public static boolean hasLocationEnabled(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public static void checkPermissionGps(Activity activity){
+    public static void checkPermissionGps(Activity activity) {
         if (ContextCompat.checkSelfPermission(activity,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(activity,
@@ -146,7 +149,6 @@ public class RetargetlyUtils {
     }
 
     public static String getCurrentSsid(Context context) {
-        String ssid = "";
         try {
             ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -154,10 +156,12 @@ public class RetargetlyUtils {
                 final WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                 final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
                 if (connectionInfo != null) {
-                    ssid = connectionInfo.getSSID();
+                    return connectionInfo.getSSID();
                 }
             }
-        }catch (Exception e){e.printStackTrace();}
-        return ssid;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

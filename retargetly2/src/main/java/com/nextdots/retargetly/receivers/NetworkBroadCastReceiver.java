@@ -18,14 +18,14 @@ public class NetworkBroadCastReceiver extends BroadcastReceiver {
         if(connectivityManager!=null) {
             NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
             if(null != ni && NetworkInfo.State.CONNECTING!=ni.getState() && NetworkInfo.State.CONNECTED==ni.getState()){
-                getIp(context);
+                getIp(context, null);
             }
         }
     }
 
-    public static void getIp(Context context){
+    public static void getIp(Context context, ApiController.ListenerSendInfo listenerSendInfo){
         final ApiController apiController = new ApiController();
-        apiController.callIp();
+        apiController.callIp(listenerSendInfo);
         nWifi = RetargetlyUtils.getCurrentSsid(context);
     }
 }

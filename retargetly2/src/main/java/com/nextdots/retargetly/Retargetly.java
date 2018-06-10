@@ -22,6 +22,7 @@ import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.models.Event;
 import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
+import com.nextdots.retargetly.utils.GeoUtils;
 import com.nextdots.retargetly.utils.RetargetlyUtils;
 
 import java.util.Locale;
@@ -37,7 +38,6 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     static public Application application = null;
 
     private boolean isFirst = false;
-    private boolean hasSendCoordinate = false;
     private boolean sendGeoData = true;
 
     static public String source_hash;
@@ -48,9 +48,9 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     private boolean forceGPS = false;
 
-    private Activity currentActivity;
-
     private ApiController apiController;
+    private Location lastLocation;
+    private GeoUtils geoUtils;
 
     public static void init(Application application, String source_hash) {
         new Retargetly(application, source_hash);
@@ -115,10 +115,8 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         if (!isFirst) {
             hasPermission(activity);
             isFirst = true;
-            sendOpenEvent();
             Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
         }
-        sendGeoEvent(application);
     }
 
     @Override
@@ -128,7 +126,6 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     @Override
     public void onActivityStopped(Activity activity) {
-        hasSendCoordinate = false;
     }
 
     @Override
@@ -138,44 +135,14 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        hasSendCoordinate = false;
     }
 
-    private void callCoordinateGps(Context activity) {
-        long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
-
-        long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
-
-        LocationManager manager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
-        if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            try {
-                LocationManager locationManager = (LocationManager) activity
-                        .getSystemService(LOCATION_SERVICE);
-
-                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    locationManager.requestLocationUpdates(
-                            LocationManager.GPS_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                }
-            } catch (Exception e) {
-
-            }
-        }
-    }
 
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "GPS onLocationChanged");
-        if ((location.getLatitude() != 0 && location.getLongitude() != 0) && !hasSendCoordinate && sendGeoData) {
-            hasSendCoordinate = true;
-            Log.d(TAG, "Latitude: " + location.getLatitude());
-            Log.d(TAG, "Longitude: " + location.getLongitude());
-            Log.d(TAG, "Send geo event");
-            RetargetlyUtils.callEventCoordinate(
-                    String.valueOf(location.getLatitude()),
-                    String.valueOf(location.getLongitude()));
-        }
+        Log.d(TAG, "Send geo event");
+        sendGeoEvent(location);
     }
 
     @Override
@@ -192,28 +159,88 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     private void getDefaultParams() {
         if (sendGeoData && RetargetlyUtils.hasLocationEnabled(application))
-            apiController.callInitData(source_hash);
+            apiController.callInitData(source_hash, new ApiController.ListenerSendInfo() {
+                @Override
+                public void finishRequest() {
+                    initGPS();
+                }
+            });
         getIp();
     }
 
-    private void getIp(){
-        NetworkBroadCastReceiver.getIp(application);
+    private void getIp() {
+        NetworkBroadCastReceiver.getIp(application, new ApiController.ListenerSendInfo() {
+            @Override
+            public void finishRequest() {
+                sendOpenEvent();
+            }
+        });
         IntentFilter intentFilter = new IntentFilter(CONNECTIVITY_ACTION);
         application.registerReceiver(new NetworkBroadCastReceiver(),
                 intentFilter);
     }
 
-    private void sendOpenEvent(){
+    private void sendOpenEvent() {
         Log.d(TAG, "Send open event");
-        apiController.callCustomEvent(new Event(source_hash, application.getPackageName(), manufacturer, model, idiome, RetargetlyUtils.getInstalledApps(application)));
+        apiController.callCustomEvent(
+                new Event(source_hash, application.getPackageName(), manufacturer, model, idiome,
+                        RetargetlyUtils.getInstalledApps(application),
+                        application.getString(R.string.app_name)));
     }
 
-    private void sendGeoEvent(Context context){
-        if (!hasSendCoordinate && sendGeoData)
-            callCoordinateGps(context);
+    private void sendGeoEvent(Location location) {
+        lastLocation = location;
+        if ((location.getLatitude() != 0 && location.getLongitude() != 0) && sendGeoData) {
+            Log.d(TAG, "Latitude: " + location.getLatitude());
+            Log.d(TAG, "Longitude: " + location.getLongitude());
+            RetargetlyUtils.callEventCoordinate(
+                    String.valueOf(location.getLatitude()),
+                    String.valueOf(location.getLongitude()));
+            geoUtils.cancelCount();
+            geoUtils.initCount();
+        }
     }
 
-    private void hasPermission(Activity activity){
+    private void initGPS() {
+        long MIN_DISTANCE_CHANGE_FOR_UPDATES = apiController.motionTreshold; //mts
+
+        long MIN_TIME_BW_UPDATES = 1000 * 60 * apiController.motionFrequency; // milisegundos.
+
+        Log.d(TAG, "Init GPS Distancia: " + apiController.motionTreshold + " Frecuencia " +
+                apiController.motionFrequency);
+
+        LocationManager manager = (LocationManager) application.getSystemService(LOCATION_SERVICE);
+        if (manager != null && manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            try {
+                LocationManager locationManager = (LocationManager) application
+                        .getSystemService(LOCATION_SERVICE);
+
+                if (locationManager != null &&
+                        ActivityCompat.checkSelfPermission(application, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(application, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    locationManager.requestLocationUpdates(
+                            LocationManager.GPS_PROVIDER,
+                            MIN_TIME_BW_UPDATES,
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                    geoUtils = new GeoUtils(GeoUtils.SecondsToMilliseconds(apiController.motionDetectionFrequency),
+                            new GeoUtils.ListenerTask() {
+                                @Override
+                                public void next() {
+                                    if (lastLocation != null) {
+                                        Log.d(TAG, "Send geo event lastlocation");
+                                        sendGeoEvent(lastLocation);
+                                    }
+                                }
+                            });
+                    geoUtils.initCount();
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void hasPermission(Activity activity) {
         if (sendGeoData && forceGPS)
             RetargetlyUtils.checkPermissionGps(activity);
     }
