@@ -87,6 +87,38 @@ public class RetargetlyUtils {
 
     }
 
+    public static void callEventDeeplink(final String url, final CustomEventListener listener) {
+        try {
+            final ApiController apiController = new ApiController();
+            final String manufacturer = Build.MANUFACTURER;
+            final String model = Build.MODEL;
+            final String idiome = Locale.getDefault().getLanguage();
+            final Map<String, String> map = new HashMap<>();
+            map.put("url", url);
+            if (ApiController.ip != null && ApiController.ip.length() > 0) {
+                apiController.callCustomEvent(
+                        new Event(ApiConstanst.EVENT_DEEPLINK, map , Retargetly.source_hash,
+                                Retargetly.application.getPackageName(), manufacturer, model,
+                                idiome, getAppName(Retargetly.application))
+                        , listener);
+            } else {
+                apiController.callIp(new ApiController.ListenerSendInfo() {
+                    @Override
+                    public void finishRequest() {
+                        apiController.callCustomEvent(
+                                new Event(ApiConstanst.EVENT_DEEPLINK, map, Retargetly.source_hash,
+                                        Retargetly.application.getPackageName(), manufacturer,
+                                        model, idiome,getAppName(Retargetly.application))
+                                , listener);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private static void callEvent(Map value, CustomEventListener customEventListener) {
         ApiController apiController = new ApiController();
 

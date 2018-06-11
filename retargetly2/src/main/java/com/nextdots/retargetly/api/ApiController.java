@@ -126,7 +126,6 @@ public class ApiController {
     }
 
     private void callEvent(final Event event, final CustomEventListener customEventListener) {
-        Log.e(getClass().getName(), "json -> "+event.toString());
         service.callEvent(event).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
