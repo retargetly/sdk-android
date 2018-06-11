@@ -46,7 +46,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private String model;
     private String idiome;
 
-    private boolean forceGPS = false;
+    private boolean forceGPS = true;
 
     private ApiController apiController;
     private Location lastLocation;
