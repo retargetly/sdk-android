@@ -81,6 +81,8 @@ public class ApiController {
             public void onResponse(Call<String> call, Response<String> response) {
                 if(response.body()!=null){
                     ip= response.body();
+                    if(ip!=null)
+                        ip = ip.replaceAll("\n","");
                 }
                 if (listener != null)
                     listener.finishRequest();

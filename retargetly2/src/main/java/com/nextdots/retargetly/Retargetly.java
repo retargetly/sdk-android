@@ -1,24 +1,20 @@
 package com.nextdots.retargetly;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
-import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.models.Event;
 import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
@@ -29,6 +25,7 @@ import java.util.Locale;
 
 
 import static android.content.Context.LOCATION_SERVICE;
+import static android.content.Intent.ACTION_VIEW;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static com.nextdots.retargetly.api.ApiConstanst.TAG;
 
@@ -36,34 +33,43 @@ import static com.nextdots.retargetly.api.ApiConstanst.TAG;
 public class Retargetly implements Application.ActivityLifecycleCallbacks, LocationListener {
 
     static public Application application = null;
-
     private boolean isFirst = false;
+
     private boolean sendGeoData = true;
+    private boolean forceGPS = true;
 
     static public String source_hash;
-
     private String manufacturer;
     private String model;
     private String idiome;
 
-    private boolean forceGPS = true;
 
     private ApiController apiController;
     private Location lastLocation;
     private GeoUtils geoUtils;
+    private Class classDeeplink;
 
     public static void init(Application application, String source_hash) {
         new Retargetly(application, source_hash);
+    }
+
+    public static void init(Application application, String source_hash, Class classDeeplink) {
+        new Retargetly(application, source_hash, classDeeplink);
     }
 
     public static void init(Application application, String source_hash, boolean forceGPS) {
         new Retargetly(application, source_hash, forceGPS);
     }
 
+    public static void init(Application application, String source_hash, Class classDeeplink , boolean forceGPS) {
+        new Retargetly(application, source_hash, classDeeplink, forceGPS);
+    }
     public static void init(Application application, String source_hash, boolean forceGPS, boolean sendGeoData) {
         new Retargetly(application, source_hash, forceGPS, sendGeoData);
     }
-
+    public static void init(Application application, String source_hash, Class classDeeplink, boolean forceGPS, boolean sendGeoData) {
+        new Retargetly(application, source_hash, classDeeplink, forceGPS, sendGeoData);
+    }
     private Retargetly(Application application, String source_hash) {
         this.application = application;
         this.manufacturer = Build.MANUFACTURER;
@@ -71,6 +77,18 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         this.idiome = Locale.getDefault().getLanguage();
         this.source_hash = source_hash;
         this.application.registerActivityLifecycleCallbacks(this);
+        apiController = new ApiController();
+        getDefaultParams();
+    }
+
+    private Retargetly(Application application, String source_hash, Class classDeeplink) {
+        this.application = application;
+        this.manufacturer = Build.MANUFACTURER;
+        this.model = Build.MODEL;
+        this.idiome = Locale.getDefault().getLanguage();
+        this.source_hash = source_hash;
+        this.application.registerActivityLifecycleCallbacks(this);
+        this.classDeeplink = classDeeplink;
         apiController = new ApiController();
         getDefaultParams();
     }
@@ -87,7 +105,22 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         getDefaultParams();
     }
 
-    private Retargetly(Application application, String source_hash, boolean forceGPS, boolean sendGeoData) {
+    private Retargetly(Application application, String source_hash, Class classDeeplink,
+                       boolean forceGPS) {
+        this.application = application;
+        this.manufacturer = Build.MANUFACTURER;
+        this.model = Build.MODEL;
+        this.idiome = Locale.getDefault().getLanguage();
+        this.source_hash = source_hash;
+        this.application.registerActivityLifecycleCallbacks(this);
+        this.forceGPS = forceGPS;
+        this.classDeeplink = classDeeplink;
+        apiController = new ApiController();
+        getDefaultParams();
+    }
+
+    private Retargetly(Application application, String source_hash, boolean forceGPS,
+                       boolean sendGeoData) {
         this.application = application;
         this.manufacturer = Build.MANUFACTURER;
         this.model = Build.MODEL;
@@ -98,6 +131,25 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         this.sendGeoData = sendGeoData;
         apiController = new ApiController();
         getDefaultParams();
+    }
+
+    private Retargetly(Application application, String source_hash, Class classDeeplink,
+                       boolean forceGPS, boolean sendGeoData) {
+        this.application = application;
+        this.manufacturer = Build.MANUFACTURER;
+        this.model = Build.MODEL;
+        this.idiome = Locale.getDefault().getLanguage();
+        this.source_hash = source_hash;
+        this.application.registerActivityLifecycleCallbacks(this);
+        this.forceGPS = forceGPS;
+        this.sendGeoData = sendGeoData;
+        this.classDeeplink = classDeeplink;
+        apiController = new ApiController();
+        getDefaultParams();
+    }
+
+    public void setClassDeeplink(Class classDeeplink){
+        this.classDeeplink = classDeeplink;
     }
 
     @Override
@@ -116,7 +168,24 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
             hasPermission(activity);
             isFirst = true;
             Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
+            if(classDeeplink==null){
+                getDeeplink(activity);
+            }
         }
+        if(classDeeplink!=null) {
+            final Class deep = activity.getClass();
+            if (classDeeplink == deep) {
+                getDeeplink(activity);
+            }
+        }
+    }
+
+    private void getDeeplink(Activity activity){
+        final Intent intent = activity.getIntent();
+        final String action = intent.getAction();
+        final Uri data = intent.getData();
+        if (data != null && action != null && action.equalsIgnoreCase(ACTION_VIEW))
+            RetargetlyUtils.callEventDeeplink(data.toString());
     }
 
     @Override
@@ -162,6 +231,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
             apiController.callInitData(source_hash, new ApiController.ListenerSendInfo() {
                 @Override
                 public void finishRequest() {
+                    application.sendBroadcast(new Intent("changedata"));
                     initGPS();
                 }
             });
@@ -172,6 +242,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         NetworkBroadCastReceiver.getIp(application, new ApiController.ListenerSendInfo() {
             @Override
             public void finishRequest() {
+                application.sendBroadcast(new Intent("changedata"));
                 sendOpenEvent();
             }
         });
