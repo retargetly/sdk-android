@@ -16,11 +16,13 @@ import java.io.IOException;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 import static com.nextdots.retargetly.api.ApiConstanst.TAG;
 
@@ -30,10 +32,10 @@ public class ApiController {
     /*
     Creamos e inicializamos las variables con sus valores por default
      */
-    public int motionFrequency = 300; //Frecuencia en movimiento
-    public int staticFrequency = 1800; //Frecuencia en reposo
-    public int motionTreshold = 300; // Distancia
-    public int motionDetectionFrequency = 120;
+    public static int motionFrequency = 300; //Frecuencia en movimiento
+    public static int staticFrequency = 1800; //Frecuencia en reposo
+    public static int motionTreshold = 300; // Distancia
+    public static int motionDetectionFrequency = 120;
     public static String ip = "";
 
     public ApiController() {
@@ -68,22 +70,24 @@ public class ApiController {
         callEvent(event, customEventListener);
     }
 
-    public void callIp(@Nullable final ListenerSendInfo listener) {
-        service.callDynamic("http://www.ip-api.com/json").enqueue(new Callback<JsonElement>() {
+    public void callIp(final ListenerSendInfo listener){
+        final Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://icanhazip.com/")
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .build();
+        final ApiService service = retrofit.create(ApiService.class);
+        service.getStringResponse("https://icanhazip.com/").enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<JsonElement> call, Response<JsonElement> response) {
-                if (response.body() != null) {
-                    final JsonObject json = response.body().getAsJsonObject();
-                    if (json != null) {
-                        ip = json.get("query").getAsString();
-                    }
+            public void onResponse(Call<String> call, Response<String> response) {
+                if(response.body()!=null){
+                    ip= response.body();
                 }
                 if (listener != null)
                     listener.finishRequest();
             }
 
             @Override
-            public void onFailure(Call<JsonElement> call, Throwable t) {
+            public void onFailure(Call<String> call, Throwable t) {
                 t.printStackTrace();
                 if (listener != null)
                     listener.finishRequest();
@@ -126,6 +130,7 @@ public class ApiController {
     }
 
     private void callEvent(final Event event, final CustomEventListener customEventListener) {
+        Log.e(getClass().getName(), "json -> "+event.toString());
         service.callEvent(event).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {

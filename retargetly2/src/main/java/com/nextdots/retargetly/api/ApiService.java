@@ -3,6 +3,7 @@ package com.nextdots.retargetly.api;
 import com.google.gson.JsonElement;
 import com.nextdots.retargetly.data.models.Event;
 
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -23,7 +24,7 @@ public interface ApiService {
     @GET("sdk/params")
     Call<JsonElement> callInit(@Query("source_hash") String source_hash);
 
-    @GET
-    Call<JsonElement> callDynamic(@Url String url);
+    @GET()
+    Call<String> getStringResponse(@Url String url);
 
 }
