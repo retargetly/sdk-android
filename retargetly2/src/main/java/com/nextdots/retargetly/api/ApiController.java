@@ -106,14 +106,22 @@ public class ApiController {
                     if (json != null) {
                         final JsonObject jsonResponse = json.getAsJsonObject("response");
                         if (jsonResponse != null) {
-                            motionDetectionFrequency = jsonResponse
-                                    .get("motionDetectionFrequency").getAsInt();
-                            motionFrequency = jsonResponse
-                                    .get("motionFrequency").getAsInt();
-                            motionTreshold = jsonResponse
-                                    .get("motionTreshold").getAsInt();
-                            staticFrequency = jsonResponse
-                                    .get("staticFrequency").getAsInt();
+                            if(jsonResponse
+                                    .has("motionDetectionFrequency"))
+                                motionDetectionFrequency = jsonResponse
+                                        .get("motionDetectionFrequency").getAsInt();
+                            if(jsonResponse
+                                    .has("motionFrequency"))
+                                motionFrequency = jsonResponse
+                                        .get("motionFrequency").getAsInt();
+                            if(jsonResponse
+                                    .has("motionThreshold"))
+                                motionTreshold = jsonResponse
+                                        .get("motionThreshold").getAsInt();
+                            if(jsonResponse
+                                    .has("staticFrequency"))
+                                staticFrequency = jsonResponse
+                                        .get("staticFrequency").getAsInt();
                         }
                     }
                 }

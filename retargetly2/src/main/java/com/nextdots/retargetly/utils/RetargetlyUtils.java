@@ -1,6 +1,7 @@
 package com.nextdots.retargetly.utils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -13,7 +14,9 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
+import android.telephony.TelephonyManager;
 
 import com.nextdots.retargetly.Retargetly;
 import com.nextdots.retargetly.api.ApiConstanst;
@@ -24,6 +27,7 @@ import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
 
 import org.json.JSONObject;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -48,7 +52,7 @@ public class RetargetlyUtils {
         String model = Build.MODEL;
         String idiome = Locale.getDefault().getLanguage();
 
-        apiController.callCustomEvent(new Event(ApiConstanst.EVENT_GEO, latitude, longitude,
+        apiController.callCustomEvent(new Event(getUID(Retargetly.application),ApiConstanst.EVENT_GEO, latitude, longitude,
                 Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer,
                 model, idiome,
                 NetworkBroadCastReceiver.nWifi.replaceAll("\"",""),
@@ -65,7 +69,8 @@ public class RetargetlyUtils {
             map.put("url", url);
             if (ApiController.ip != null && ApiController.ip.length() > 0) {
                 apiController.callCustomEvent(
-                        new Event(ApiConstanst.EVENT_DEEPLINK, map , Retargetly.source_hash,
+                        new Event(getUID(Retargetly.application),
+                                ApiConstanst.EVENT_DEEPLINK, map , Retargetly.source_hash,
                                 Retargetly.application.getPackageName(), manufacturer, model,
                                 idiome, getAppName(Retargetly.application))
                         , null);
@@ -74,7 +79,8 @@ public class RetargetlyUtils {
                     @Override
                     public void finishRequest() {
                         apiController.callCustomEvent(
-                                new Event(ApiConstanst.EVENT_DEEPLINK, map, Retargetly.source_hash,
+                                new Event(getUID(Retargetly.application),
+                                        ApiConstanst.EVENT_DEEPLINK, map, Retargetly.source_hash,
                                         Retargetly.application.getPackageName(), manufacturer,
                                         model, idiome,getAppName(Retargetly.application))
                                 , null);
@@ -97,7 +103,8 @@ public class RetargetlyUtils {
             map.put("url", url);
             if (ApiController.ip != null && ApiController.ip.length() > 0) {
                 apiController.callCustomEvent(
-                        new Event(ApiConstanst.EVENT_DEEPLINK, map , Retargetly.source_hash,
+                        new Event(getUID(Retargetly.application),
+                                ApiConstanst.EVENT_DEEPLINK, map , Retargetly.source_hash,
                                 Retargetly.application.getPackageName(), manufacturer, model,
                                 idiome, getAppName(Retargetly.application))
                         , listener);
@@ -106,7 +113,8 @@ public class RetargetlyUtils {
                     @Override
                     public void finishRequest() {
                         apiController.callCustomEvent(
-                                new Event(ApiConstanst.EVENT_DEEPLINK, map, Retargetly.source_hash,
+                                new Event(getUID(Retargetly.application),
+                                        ApiConstanst.EVENT_DEEPLINK, map, Retargetly.source_hash,
                                         Retargetly.application.getPackageName(), manufacturer,
                                         model, idiome,getAppName(Retargetly.application))
                                 , listener);
@@ -127,7 +135,8 @@ public class RetargetlyUtils {
         String idiome = Locale.getDefault().getLanguage();
 
         apiController.callCustomEvent(
-                new Event(ApiConstanst.EVENT_CUSTOM, value, Retargetly.source_hash,
+                new Event(getUID(Retargetly.application),
+                        ApiConstanst.EVENT_CUSTOM, value, Retargetly.source_hash,
                         Retargetly.application.getPackageName(), manufacturer, model, idiome,
                         getAppName(Retargetly.application))
                 , customEventListener);
@@ -196,4 +205,10 @@ public class RetargetlyUtils {
         }
         return "";
     }
+
+    @SuppressLint("HardwareIds")
+    public static String getUID(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 public class Event {
 
     private String et;
+    private String uid;
     private Map value;
     private String source_hash;
     private String app;
@@ -21,7 +22,7 @@ public class Event {
     private String appn;
     public String ip;
 
-    public Event(String source_hash, String app, String mf, String device, String lan, String apps, String appn){
+    public Event(String uid, String source_hash, String app, String mf, String device, String lan, String apps, String appn){
         this.et  = ApiConstanst.EVENT_OPEN;
         this.source_hash = source_hash;
         this.app = app;
@@ -30,9 +31,10 @@ public class Event {
         this.lan = lan;
         this.apps = apps;
         this.appn = appn;
+        this.uid= uid;
     }
 
-    public Event(String et, Map value, String source_hash, String app, String mf, String device,
+    public Event(String uid, String et, Map value, String source_hash, String app, String mf, String device,
                  String lan, String appn){
         this.et  = et;
         this.value = value;
@@ -42,9 +44,10 @@ public class Event {
         this.device = device;
         this.lan = lan;
         this.appn = appn;
+        this.uid= uid;
     }
 
-    public Event(String et, String latitude, String longitude, String source_hash, String app,
+    public Event(String uid, String et, String latitude, String longitude, String source_hash, String app,
                  String mf, String device, String lan, String nwifi, String appn){
         this.et  = et;
 
@@ -58,6 +61,7 @@ public class Event {
         this.device = device;
         this.lan = lan;
         this.appn = appn;
+        this.uid= uid;
     }
 
 

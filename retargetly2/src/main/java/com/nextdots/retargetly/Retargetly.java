@@ -254,7 +254,8 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private void sendOpenEvent() {
         Log.d(TAG, "Send open event");
         apiController.callCustomEvent(
-                new Event(source_hash, application.getPackageName(), manufacturer, model, idiome,
+                new Event(RetargetlyUtils.getUID(Retargetly.application)
+                        ,source_hash, application.getPackageName(), manufacturer, model, idiome,
                         RetargetlyUtils.getInstalledApps(application),
                         application.getString(R.string.app_name)));
     }
