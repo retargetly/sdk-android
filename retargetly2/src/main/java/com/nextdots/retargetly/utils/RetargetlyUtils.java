@@ -44,7 +44,8 @@ public class RetargetlyUtils {
         callEvent(value, customEventListener);
     }
 
-    public static void callEventCoordinate(String latitude, String longitude) {
+    public static void callEventCoordinate(String latitude, String longitude,
+                                           String accuracy, String alt) {
         ApiController apiController = new ApiController();
 
         String manufacturer = Build.MANUFACTURER;
@@ -52,6 +53,7 @@ public class RetargetlyUtils {
         String idiome = Locale.getDefault().getLanguage();
 
         apiController.callCustomEvent(new Event(getUID(), ApiConstanst.EVENT_GEO, latitude, longitude,
+                accuracy, alt,
                 Retargetly.source_hash, Retargetly.application.getPackageName(), manufacturer,
                 model, idiome,
                 NetworkBroadCastReceiver.nWifi.replaceAll("\"", ""),

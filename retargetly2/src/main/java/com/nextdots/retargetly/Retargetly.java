@@ -276,9 +276,13 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         if ((location.getLatitude() != 0 && location.getLongitude() != 0) && sendGeoData) {
             RetargetlyUtils.LogR("Latitude: " + location.getLatitude());
             RetargetlyUtils.LogR("Longitude: " + location.getLongitude());
+            RetargetlyUtils.LogR("Accuracy: " + location.getAccuracy());
+            RetargetlyUtils.LogR("Alt: " + location.getAltitude());
             RetargetlyUtils.callEventCoordinate(
                     String.valueOf(location.getLatitude()),
-                    String.valueOf(location.getLongitude()));
+                    String.valueOf(location.getLongitude()),
+                    String.valueOf(location.getAccuracy()),
+                    String.valueOf(location.getAltitude()));
             geoUtils.cancelCount();
             geoUtils.initCount();
         }

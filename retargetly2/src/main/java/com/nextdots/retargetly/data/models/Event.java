@@ -47,12 +47,17 @@ public class Event {
         this.uid= uid;
     }
 
-    public Event(String uid, String et, String latitude, String longitude, String source_hash, String app,
+    public Event(String uid, String et, String latitude, String longitude, String accuracy,
+                 String alt,
+                 String source_hash, String app,
                  String mf, String device, String lan, String nwifi, String appn){
         this.et  = et;
 
         final HashMap<String, String> rPosition = new HashMap<>();
-        rPosition.put("rPosition", String.valueOf(String.valueOf(latitude)+";"+String.valueOf(longitude)));
+        rPosition.put("lat",String.valueOf(latitude) );
+        rPosition.put("lng",String.valueOf(longitude));
+        rPosition.put("accuracy", String.valueOf(accuracy));
+        rPosition.put("alt", String.valueOf(alt));
         rPosition.put("nwifi", nwifi);
         this.value = rPosition;
         this.source_hash = source_hash;
