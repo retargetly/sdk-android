@@ -4,11 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
-import android.util.Log;
 import com.nextdots.retargetly.api.ApiConstanst;
+import com.nextdots.retargetly.utils.RetargetlyUtils;
 
 import static android.content.Context.LOCATION_SERVICE;
-import static com.nextdots.retargetly.api.ApiConstanst.TAG;
 
 public class GPSBroadCastReceiver extends BroadcastReceiver {
 
@@ -19,12 +18,12 @@ public class GPSBroadCastReceiver extends BroadcastReceiver {
         this.context = context;
         final LocationManager manager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
         if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Log.d(TAG, "GPS ENABLE");
+            RetargetlyUtils.LogR( "GPS ENABLE");
             sendBroadcastActive();
         }
         else
         {
-            Log.d(TAG,"GPS DISABLE");
+            RetargetlyUtils.LogR("GPS DISABLE");
             sendBroadcastDisable();
         }
     }

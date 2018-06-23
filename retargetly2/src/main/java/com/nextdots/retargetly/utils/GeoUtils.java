@@ -6,8 +6,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class GeoUtils {
-
-    public static final String TAG = GeoUtils.class.getName();
     private static final int milliseconds = 1000;
     private Timer timer;
     private Handler handler;

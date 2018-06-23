@@ -1,22 +1,19 @@
 package com.nextdots.retargetly.api;
 
-import android.content.BroadcastReceiver;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.nextdots.retargetly.data.listeners.CustomEventListener;
 import com.nextdots.retargetly.data.models.Event;
-import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
+import com.nextdots.retargetly.utils.RetargetlyUtils;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,7 +21,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
-import static com.nextdots.retargetly.api.ApiConstanst.TAG;
 
 public class ApiController {
 
@@ -37,10 +33,14 @@ public class ApiController {
     public static int motionTreshold = 300; // Distancia
     public static int motionDetectionFrequency = 120;
     public static String ip = "";
+    public static String UUID ="";
 
     public ApiController() {
 
         OkHttpClient defaultHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
                 .addInterceptor(
                         new Interceptor() {
                             @Override
@@ -98,6 +98,7 @@ public class ApiController {
     }
 
     public void callInitData(String api, final ListenerSendInfo listenerSendInfo) {
+        RetargetlyUtils.LogR("https://api.retargetly.com/sdk/params?source_hash="+api);
         service.callInit(api).enqueue(new Callback<JsonElement>() {
             @Override
             public void onResponse(Call<JsonElement> call, Response<JsonElement> response) {
@@ -140,17 +141,17 @@ public class ApiController {
     }
 
     private void callEvent(final Event event, final CustomEventListener customEventListener) {
-        Log.e(getClass().getName(), "json -> "+event.toString());
+        RetargetlyUtils.LogR("json -> "+event.toString());
         service.callEvent(event).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                if (event.getEt() != ApiConstanst.EVENT_OPEN)
-                    Log.d(TAG, "Event : " + event.getEt() + ", " +
+                if (!event.getEt().equalsIgnoreCase(ApiConstanst.EVENT_OPEN))
+                    RetargetlyUtils.LogR("Event : " + event.getEt() + ", " +
                             "value:" + event.getValue() + ", " +
                             "status: " + response.code() + ", " +
                             "IP: " + event.ip);
                 else
-                    Log.d(TAG, "Event : " + event.getEt() + ", status: " + response.code() + ", " +
+                    RetargetlyUtils.LogR("Event : " + event.getEt() + ", status: " + response.code() + ", " +
                             "IP: " + event.ip );
 
                 if (customEventListener != null)
@@ -159,7 +160,7 @@ public class ApiController {
 
             @Override
             public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                Log.e(TAG, t.getMessage());
+                t.printStackTrace();
                 if (customEventListener != null)
                     customEventListener.customEventFailure(t.getMessage());
             }

@@ -12,7 +12,7 @@ public class DialogGpsUtils {
     static AlertDialog alertDialog = null;
 
     public static void openDialogSettings(final Activity activity){
-       alertDialog = new AlertDialog.Builder(activity)
+        alertDialog = new AlertDialog.Builder(activity)
                 .setMessage(activity.getResources().getString(R.string.alert_location))
                 .setCancelable(true)
                 .setPositiveButton(activity.getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener() {

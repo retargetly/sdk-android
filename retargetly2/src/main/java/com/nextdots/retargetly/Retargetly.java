@@ -1,8 +1,10 @@
 package com.nextdots.retargetly;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -10,24 +12,28 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.models.Event;
 import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
 import com.nextdots.retargetly.utils.GeoUtils;
 import com.nextdots.retargetly.utils.RetargetlyUtils;
+import com.nextdots.retargetly.utils.TaskId;
 
+import java.io.IOException;
 import java.util.Locale;
 
 
 import static android.content.Context.LOCATION_SERVICE;
 import static android.content.Intent.ACTION_VIEW;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
-import static com.nextdots.retargetly.api.ApiConstanst.TAG;
 
 
 public class Retargetly implements Application.ActivityLifecycleCallbacks, LocationListener {
@@ -167,7 +173,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
         if (!isFirst) {
             hasPermission(activity);
             isFirst = true;
-            Log.d(TAG, "First Activity " + activity.getClass().getSimpleName());
+            RetargetlyUtils.LogR("First Activity " + activity.getClass().getSimpleName());
             if(classDeeplink==null){
                 getDeeplink(activity);
             }
@@ -209,8 +215,8 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG, "GPS onLocationChanged");
-        Log.d(TAG, "Send geo event");
+        RetargetlyUtils.LogR("GPS onLocationChanged");
+        RetargetlyUtils.LogR("Send geo event");
         sendGeoEvent(location);
     }
 
@@ -227,15 +233,20 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     }
 
     private void getDefaultParams() {
-        if (sendGeoData && RetargetlyUtils.hasLocationEnabled(application))
-            apiController.callInitData(source_hash, new ApiController.ListenerSendInfo() {
-                @Override
-                public void finishRequest() {
-                    application.sendBroadcast(new Intent("changedata"));
-                    initGPS();
-                }
-            });
-        getIp();
+        getIdThread(application, new ApiController.ListenerSendInfo() {
+            @Override
+            public void finishRequest() {
+                if (sendGeoData && RetargetlyUtils.hasLocationEnabled(application))
+                    apiController.callInitData(source_hash, new ApiController.ListenerSendInfo() {
+                        @Override
+                        public void finishRequest() {
+                            application.sendBroadcast(new Intent("changedata"));
+                            initGPS();
+                        }
+                    });
+                getIp();
+            }
+        });
     }
 
     private void getIp() {
@@ -252,9 +263,9 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     }
 
     private void sendOpenEvent() {
-        Log.d(TAG, "Send open event");
+        RetargetlyUtils.LogR("Send open event");
         apiController.callCustomEvent(
-                new Event(RetargetlyUtils.getUID(Retargetly.application)
+                new Event(RetargetlyUtils.getUID()
                         ,source_hash, application.getPackageName(), manufacturer, model, idiome,
                         RetargetlyUtils.getInstalledApps(application),
                         application.getString(R.string.app_name)));
@@ -263,8 +274,8 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private void sendGeoEvent(Location location) {
         lastLocation = location;
         if ((location.getLatitude() != 0 && location.getLongitude() != 0) && sendGeoData) {
-            Log.d(TAG, "Latitude: " + location.getLatitude());
-            Log.d(TAG, "Longitude: " + location.getLongitude());
+            RetargetlyUtils.LogR("Latitude: " + location.getLatitude());
+            RetargetlyUtils.LogR("Longitude: " + location.getLongitude());
             RetargetlyUtils.callEventCoordinate(
                     String.valueOf(location.getLatitude()),
                     String.valueOf(location.getLongitude()));
@@ -278,7 +289,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
 
         long MIN_TIME_BW_UPDATES = 1000 * 60 * apiController.motionFrequency; // milisegundos.
 
-        Log.d(TAG, "Init GPS Distancia: " + apiController.motionTreshold + " Frecuencia " +
+        RetargetlyUtils.LogR("Init GPS Distancia: " + apiController.motionTreshold + " Frecuencia " +
                 apiController.motionFrequency);
 
         LocationManager manager = (LocationManager) application.getSystemService(LOCATION_SERVICE);
@@ -298,7 +309,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
                                 @Override
                                 public void next() {
                                     if (lastLocation != null) {
-                                        Log.d(TAG, "Send geo event lastlocation");
+                                        RetargetlyUtils.LogR("Send geo event lastlocation");
                                         sendGeoEvent(lastLocation);
                                     }
                                 }
@@ -315,6 +326,11 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     private void hasPermission(Activity activity) {
         if (sendGeoData && forceGPS)
             RetargetlyUtils.checkPermissionGps(activity);
+    }
+
+    public void getIdThread(final Application context, final ApiController.ListenerSendInfo listenerSendInfo) {
+        final TaskId taskGetId= new TaskId(context, listenerSendInfo);
+        taskGetId.execute();
     }
 
 }
