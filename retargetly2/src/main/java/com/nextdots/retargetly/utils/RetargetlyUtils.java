@@ -17,6 +17,7 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.nextdots.retargetly.BuildConfig;
 import com.nextdots.retargetly.Retargetly;
 import com.nextdots.retargetly.api.ApiConstanst;
 import com.nextdots.retargetly.api.ApiController;
@@ -213,7 +214,9 @@ public class RetargetlyUtils {
     }
 
     public static void LogR(String descripcion){
-        Log.d(TAG,descripcion);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, descripcion);
+        }
     }
 
 }
