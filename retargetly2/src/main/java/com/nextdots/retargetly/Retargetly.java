@@ -289,12 +289,12 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     }
 
     private void initGPS() {
-        long MIN_DISTANCE_CHANGE_FOR_UPDATES = apiController.motionTreshold; //mts
+        long MIN_DISTANCE_CHANGE_FOR_UPDATES = ApiController.motionTreshold; //mts
 
-        long MIN_TIME_BW_UPDATES = 1000 * 60 * apiController.motionFrequency; // milisegundos.
+        long MIN_TIME_BW_UPDATES = 1000 *  ApiController.motionFrequency; // milisegundos.
 
-        RetargetlyUtils.LogR("Init GPS Distancia: " + apiController.motionTreshold + " Frecuencia " +
-                apiController.motionFrequency);
+        RetargetlyUtils.LogR("Init GPS Distancia: " + ApiController.motionTreshold + " Frecuencia " +
+                ApiController.motionFrequency);
 
         LocationManager manager = (LocationManager) application.getSystemService(LOCATION_SERVICE);
         if (manager != null && manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -308,7 +308,7 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
                             LocationManager.GPS_PROVIDER,
                             MIN_TIME_BW_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    geoUtils = new GeoUtils(GeoUtils.SecondsToMilliseconds(apiController.motionDetectionFrequency),
+                    geoUtils = new GeoUtils(GeoUtils.SecondsToMilliseconds(ApiController.motionDetectionFrequency),
                             new GeoUtils.ListenerTask() {
                                 @Override
                                 public void next() {
