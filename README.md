@@ -41,6 +41,7 @@ Add it in the root build.gradle at the end of repositories:
 allprojects {
   repositories {
     ...
+    jcenter { url "http://jcenter.bintray.com/" }
     maven { url 'https://jitpack.io' }
   }
 }
@@ -50,7 +51,7 @@ Add the dependency
 
 ```gradle
 dependencies {
-  implementation 'com.github.retargetly:sdk-android:1.9'
+  implementation 'com.github.retargetly:sdk-android:2.0.2'
 }
 ```
 
@@ -74,12 +75,30 @@ public class App extends Application {
     }
 }
 ```
+### Send Geo Data 
+If you want to send geodata events in the application: 
+```Retargetly.init(this,source_hash, false, true);```
+#### Example
+
+```java
+
+public class App extends Application {
+
+    String source_hash = "19N10-F&!Xazt";
+    boolean forceGps= true;
+    boolean sendGeoData = true;
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Retargetly.init(this,source_hash, forceGps, sendGeoData);
+    }
+}
+```
 
 ### Force GPS
 
-if you want to force the gps in the application
-
-```Retargetly.init(this,source_hash,true);```
+If you want show permission dialog do you set true ForceGPS:
+```Retargetly.init(this,source_hash, true, true);```
 
 ### Example
 
@@ -87,50 +106,31 @@ if you want to force the gps in the application
 public class App extends Application {
 
     String source_hash = "19N10-F&!Xazt";
-    boolean forceGps = true;
-
+    boolean forceGps= true;
+    boolean sendGeoData = true;
     @Override
     public void onCreate() {
         super.onCreate();
-        Retargetly.init(this,source_hash,forceGps);
+        Retargetly.init(this,source_hash, forceGps, sendGeoData);
     }
 }
 ```
 
-Forcing gps forces the user to activate the gps with a dialog that goes directly to the location permissions
-
-### Broadcast if GPS is enable/disable
-
+### Deeplinks
+#### Send Deeplink event without response
 ```java
-
-@Override
-protected void onResume() {
-    super.onResume();
-    registerReceiver(gpsEnable, new IntentFilter(ApiConstanst.GPS_ENABLE));
-    registerReceiver(gpsDisable, new IntentFilter(ApiConstanst.GPS_DISABLE));
-}
-
-@Override
-protected void onPause() {
-    super.onPause();
-    unregisterReceiver(gpsEnable);
-    unregisterReceiver(gpsDisable);
-}
-
-public BroadcastReceiver gpsEnable = new BroadcastReceiver() {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Log.d(TAG,"GPS ENABLED");
-    }
-};
-
-public BroadcastReceiver gpsDisable = new BroadcastReceiver() {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Log.d(TAG,"GPS DISABLED");
-    }
-};
+RetargetlyUtils.callEventDeeplink(Map<String,String> value);
 ```
+#### Send Deeplink event with response
+```java
+RetargetlyUtils.callEventDeeplink(Map<String,String> value, CustomEventListener customEventListener);
+```
+#### Detect Deeplink
+If you want the SDK to detect when a deeplink is opened, you must set in the init the class received deeplinks, for example:  
+```java
+Retargetly.init(this,source_hash, myclassdeeplinks.class, false, true);
+```
+If you not set your class Deeplink in the init, the SDK detect automatically in your first opened activity.
 
 ### Custom Event
 
@@ -242,8 +242,4 @@ D/Retargetly -: Event : custom, 500
 
 ## Versioning
 
-For the versions available, see the [tags on this repository](https://github.com/nextdots/retargetly-android-lib.git).
-
-## Authors
-
-* [**Luis Tundisi**](mailto:luistundisi@gmail.com) - [NextDots](http://nextdots.com/)
+For the versions available, see the [tags on this repository](https://github.com/retargetly/sdk-android.git).
