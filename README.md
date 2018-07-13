@@ -1,4 +1,4 @@
-![Retargetly](http://beta.retargetly.com/wp-content/uploads/2015/07/Logo.png)
+![Retargetly](https://github.com/retargetly/sdk-ios/blob/master/rely_artboard.png)
 
 # Retargetly
 
