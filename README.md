@@ -1,4 +1,4 @@
-![Retargetly](https://github.com/retargetly/sdk-ios/blob/master/rely_artboard.png)
+![Retargetly](https://github.com/retargetly/sdk-android/blob/master/rely_artboard.png)
 
 # Retargetly
 
