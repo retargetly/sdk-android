@@ -30,6 +30,9 @@ getFragmentManager()
 getSupportFragmentManager()
 
 ```
+### Min SDK
+
+15 (Android 4.0.3–4.0.4 Ice Cream Sandwich)
 
 ### Installing
 
