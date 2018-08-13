@@ -38,6 +38,16 @@ getSupportFragmentManager()
 
 To get a Git project into your build:
 
+Add following lines in the Manifest: 
+```xml
+<manifest ... >
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    ...
+</manifest>
+```
 Add it in the root build.gradle at the end of repositories:
 
 ```gradle
