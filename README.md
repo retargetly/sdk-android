@@ -79,7 +79,7 @@ RetargetlyParams.Builder(source_hash)
                  .build();
 ```
 
-Which is used to change some default configurations of the behavior of the library, and:
+Which is used to change some default configurations of the behavior of the library (configurations can be concatenated one after another), and:
 
 ```java
 Retargetly.init(this,params);
