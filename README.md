@@ -102,7 +102,6 @@ public class App extends Application {
     }
 }
 ```
-sendOptionalParams
 
 In this case, we built the parameters with "isSendDeviceNameEnabled(false)", and it will prevent device model name to be sent to the DMP. You can add as many individual configurations as available, and also there is an additional method "sendOptionalParams(false)" which will set all possible configurations in false, thus not sending any of those optional parameters.
 
