@@ -70,95 +70,41 @@ dependencies {
 
 ## Usage
 
-You must create a class that extends of application and in the oncreate add the following line
+You must create a class that extends of application and in the oncreate add the following two methods:
 
-```Retargetly.init(this,source_hash);```
+```java
+RetargetlyParams.Builder(source_hash)
+                 [.changeSomeConfig(false)]
+                 [.changeSomeOtherConfig(true)]
+                 .build();
+```
+
+Which is used to change some default configurations of the behavior of the library, and:
+
+```java
+Retargetly.init(this,params);
+```
+
+Which is used to initialize the library.
 
 ### Example
 
 ```java
 public class App extends Application {
-
-    String source_hash = "19N10-F&!Xazt";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Retargetly.init(this,source_hash);
-    }
-}
-```
-### Send Geo Data 
-If you want to send geodata events in the application: 
-```Retargetly.init(this,source_hash, false, true);```
-#### Example
-
-```java
-
-public class App extends Application {
-
-    String source_hash = "19N10-F&!Xazt";
-    boolean forceGps= true;
-    boolean sendGeoData = true;
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Retargetly.init(this,source_hash, forceGps, sendGeoData);
-    }
-}
-```
-
-### Force GPS
-
-If you want show permission dialog do you set true ForceGPS:
-```Retargetly.init(this,source_hash, true, true);```
-
-### Example
-
-```java
-public class App extends Application {
-
-    String source_hash = "19N10-F&!Xazt";
-    boolean forceGps= true;
-    boolean sendGeoData = true;
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Retargetly.init(this,source_hash, forceGps, sendGeoData);
-    }
-}
-```
-
-### Data user
-
-Now you can manage which parameters are sent to the server. For use reported user info level you need use the RetargeltlyParam.Builder.
-
-### Example
-
-```java
-public class App extends Application {
-    String source_hash = "19N10-F&!Xazt";
+    String source_hash = "iSkGs8ZOEqgM3hKHE4AHttSutHjEaLMK";
     @Override
     public void onCreate() {
         super.onCreate();
         RetargetlyParams params = new RetargetlyParams.Builder(source_hash)
-                                                       .sendOptionalParams(false)
+                                                       .isSendDeviceNameEnabled(false)
                                                        .build();
         Retargetly.init(this,params);
     }
 }
 ```
-where the sendOptionalParams option is a function that adds all the parameters options, which are language, manufacturer, deviceName, ipAddress, applications, wifiName and country.
+sendOptionalParams
 
-In addition all parameters can be disable individually using the RetargeltyParam.Builder. In case you want to disable IP parameter, you can always do it like this:
-
-### Example
-
-```java
-RetargetlyParams params = new RetargetlyParams.Builder(source_hash)
-                                            .isSendIpEnabled(false)
-                                            .build();
-```
+In this case, we built the parameters with "isSendDeviceNameEnabled(false)", and it will prevent device model name to be sent to the DMP. You can add as many individual configurations as available, and also there is an additional method "sendOptionalParams(false)" which will set all possible configurations in false, thus not sending any of those optional parameters.
 
 ### Builder Parameters
 
@@ -176,7 +122,10 @@ RetargetlyUtils.callEventDeeplink(Map<String,String> value, CustomEventListener 
 #### Detect Deeplink
 If you want the SDK to detect when a deeplink is opened, you must set in the init the class received deeplinks, for example:  
 ```java
-Retargetly.init(this,source_hash, myclassdeeplinks.class, false, true);
+RetargetlyParams params = new RetargetlyParams.Builder(source_hash)
+                                               .classDeeplink(myclassdeeplinks.class)
+                                               .build();
+Retargetly.init(this,params);
 ```
 If you not set your class Deeplink in the init, the SDK detect automatically in your first opened activity.
 
@@ -239,14 +188,6 @@ public class MainActivity extends AppCompatActivity implements CustomEventListen
 }
 ```
 
-#### Util getInstalledApps
-
-```java
-String result = RetargetlyUtils.getInstalledApps(getApplication());
-
-// result -> "Amazon, Trello, Toggle, Facebook, ...."
-```
-
 ## Logs
 
 ### First Activity
@@ -295,7 +236,7 @@ For the versions available, see the [tags on this repository](https://github.com
 
 ## Which is the information that the SDK sends to the DMP?
 
-```xml
+
 - Device ID: anonymous advertising identificator, the ones provided by Google and Apple.
 - Type of event: which is the event that triggered the data reception, it may be application open, custom event (if configured), geo event (if activated), or deeplink (if configured).
 - Custom Data: this is only for custom events. Custom events send custom data in key/value format.
@@ -307,5 +248,3 @@ For the versions available, see the [tags on this repository](https://github.com
 - Language: which is the device configured language.
 - Ip: which is the IP address of the device.
 - Wifi Name: which is the name of the wifi that the user is connected to.
-- Country: iso code 2 of the country where the device is located.
-```
