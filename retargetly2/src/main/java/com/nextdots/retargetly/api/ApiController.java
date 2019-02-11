@@ -32,7 +32,7 @@ public class ApiController {
     public static int staticFrequency = 1800; //Frecuencia en reposo
     public static int motionTreshold = 300; // Distancia
     public static int motionDetectionFrequency = 120;
-    public static String ip = "";
+    public static String ip = null;
     public static String UUID ="";
 
     public ApiController() {
@@ -81,8 +81,7 @@ public class ApiController {
             public void onResponse(Call<String> call, Response<String> response) {
                 if(response.body()!=null){
                     ip= response.body();
-                    if(ip!=null)
-                        ip = ip.replaceAll("\n","");
+                    ip = ip.replaceAll("\n","");
                 }
                 if (listener != null)
                     listener.finishRequest();

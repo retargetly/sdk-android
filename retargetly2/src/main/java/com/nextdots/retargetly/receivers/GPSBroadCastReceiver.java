@@ -20,9 +20,7 @@ public class GPSBroadCastReceiver extends BroadcastReceiver {
         if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             RetargetlyUtils.LogR( "GPS ENABLE");
             sendBroadcastActive();
-        }
-        else
-        {
+        } else {
             RetargetlyUtils.LogR("GPS DISABLE");
             sendBroadcastDisable();
         }

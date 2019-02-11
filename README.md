@@ -64,7 +64,7 @@ Add the dependency
 
 ```gradle
 dependencies {
-  implementation 'com.github.retargetly:sdk-android:2.0.2'
+  implementation 'com.github.retargetly:sdk-android:2.1.0'
 }
 ```
 
@@ -128,6 +128,41 @@ public class App extends Application {
     }
 }
 ```
+
+### Data user
+
+Now you can manage which parameters are sent to the server. For use reported user info level you need use the RetargeltlyParam.Builder.
+
+### Example
+
+```java
+public class App extends Application {
+    String source_hash = "19N10-F&!Xazt";
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        RetargetlyParams params = new RetargetlyParams.Builder(source_hash)
+                                                       .sendOptionalParams(false)
+                                                       .build();
+        Retargetly.init(this,params);
+    }
+}
+```
+where the sendOptionalParams option is a function that adds all the parameters options, which are language, manufacturer, deviceName, ipAddress, applications, wifiName and country.
+
+In addition all parameters can be disable individually using the RetargeltyParam.Builder. In case you want to disable IP parameter, you can always do it like this:
+
+### Example
+
+```java
+RetargetlyParams params = new RetargetlyParams.Builder(source_hash)
+                                            .isSendIpEnabled(false)
+                                            .build();
+```
+
+### Builder Parameters
+
+![Retargetly](https://github.com/retargetly/sdk-android/blob/master/retargetlyparams.png)
 
 ### Deeplinks
 #### Send Deeplink event without response
@@ -256,3 +291,21 @@ D/Retargetly -: Event : custom, 500
 ## Versioning
 
 For the versions available, see the [tags on this repository](https://github.com/retargetly/sdk-android.git).
+
+
+## Which is the information that the SDK sends to the DMP?
+
+```xml
+- Device ID: anonymous advertising identificator, the ones provided by Google and Apple.
+- Type of event: which is the event that triggered the data reception, it may be application open, custom event (if configured), geo event (if activated), or deeplink (if configured).
+- Custom Data: this is only for custom events. Custom events send custom data in key/value format.
+- Lat/Long/Accuracy (if geo is active): when gps data is being tracked on the SDK, geo events are being sent to the DMP.
+- Installed apps: only on open events. It sends a list of installed apps on the device (only works for android).
+- Manufacturer: device manufacturer name.
+- Device: celular model.
+- Application: which is the current application that is sending the data.
+- Language: which is the device configured language.
+- Ip: which is the IP address of the device.
+- Wifi Name: which is the name of the wifi that the user is connected to.
+- Country: iso code 2 of the country where the device is located.
+```

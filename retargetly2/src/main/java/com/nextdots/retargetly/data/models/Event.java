@@ -21,8 +21,10 @@ public class Event {
     private Object val;
     private String appn;
     public String ip;
+    private String ct;
 
-    public Event(String uid, String source_hash, String app, String mf, String device, String lan, String apps, String appn){
+    public Event(String uid, String source_hash, String app, String mf, String device, String lan,
+                 String apps, String appn, String ct){
         this.et  = ApiConstanst.EVENT_OPEN;
         this.source_hash = source_hash;
         this.app = app;
@@ -32,10 +34,11 @@ public class Event {
         this.apps = apps;
         this.appn = appn;
         this.uid= uid;
+        this.ct = ct;
     }
 
     public Event(String uid, String et, Map value, String source_hash, String app, String mf, String device,
-                 String lan, String appn){
+                 String lan, String appn, String ct){
         this.et  = et;
         this.value = value;
         this.source_hash = source_hash;
@@ -45,12 +48,13 @@ public class Event {
         this.lan = lan;
         this.appn = appn;
         this.uid= uid;
+        this.ct = ct;
     }
 
     public Event(String uid, String et, String latitude, String longitude, String accuracy,
                  String alt,
                  String source_hash, String app,
-                 String mf, String device, String lan, String nwifi, String appn){
+                 String mf, String device, String lan, String nwifi, String appn, String ct){
         this.et  = et;
 
         final HashMap<String, String> rPosition = new HashMap<>();
@@ -67,6 +71,7 @@ public class Event {
         this.lan = lan;
         this.appn = appn;
         this.uid= uid;
+        this.ct = ct;
     }
 
 

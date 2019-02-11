@@ -1,10 +1,8 @@
 package com.nextdots.retargetly;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -12,22 +10,18 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.nextdots.retargetly.api.ApiController;
 import com.nextdots.retargetly.data.models.Event;
+import com.nextdots.retargetly.data.models.RetargetlyParams;
 import com.nextdots.retargetly.receivers.NetworkBroadCastReceiver;
 import com.nextdots.retargetly.utils.GeoUtils;
 import com.nextdots.retargetly.utils.RetargetlyUtils;
 import com.nextdots.retargetly.utils.TaskId;
 
-import java.io.IOException;
 import java.util.Locale;
 
 
@@ -39,10 +33,11 @@ import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 public class Retargetly implements Application.ActivityLifecycleCallbacks, LocationListener {
 
     static public Application application = null;
+    public static RetargetlyParams params;
     private boolean isFirst = false;
 
-    private boolean sendGeoData = true;
-    private boolean forceGPS = true;
+    private boolean sendGeoData;
+    private boolean forceGPS;
 
     static public String source_hash;
     private String manufacturer;
@@ -76,80 +71,64 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     public static void init(Application application, String source_hash, Class classDeeplink, boolean forceGPS, boolean sendGeoData) {
         new Retargetly(application, source_hash, classDeeplink, forceGPS, sendGeoData);
     }
+    public static void init(Application application, RetargetlyParams params){
+        new Retargetly(application, params);
+    }
+
     private Retargetly(Application application, String source_hash) {
-        this.application = application;
-        this.manufacturer = Build.MANUFACTURER;
-        this.model = Build.MODEL;
-        this.idiome = Locale.getDefault().getLanguage();
-        this.source_hash = source_hash;
-        this.application.registerActivityLifecycleCallbacks(this);
-        apiController = new ApiController();
-        getDefaultParams();
+        this(application, new RetargetlyParams.Builder(source_hash)
+                .build());
     }
 
     private Retargetly(Application application, String source_hash, Class classDeeplink) {
-        this.application = application;
-        this.manufacturer = Build.MANUFACTURER;
-        this.model = Build.MODEL;
-        this.idiome = Locale.getDefault().getLanguage();
-        this.source_hash = source_hash;
-        this.application.registerActivityLifecycleCallbacks(this);
-        this.classDeeplink = classDeeplink;
-        apiController = new ApiController();
-        getDefaultParams();
+        this(application, new RetargetlyParams.Builder(source_hash)
+                .classDeeplink(classDeeplink)
+                .build());
     }
 
     private Retargetly(Application application, String source_hash, boolean forceGPS) {
-        this.application = application;
-        this.manufacturer = Build.MANUFACTURER;
-        this.model = Build.MODEL;
-        this.idiome = Locale.getDefault().getLanguage();
-        this.source_hash = source_hash;
-        this.application.registerActivityLifecycleCallbacks(this);
-        this.forceGPS = forceGPS;
-        apiController = new ApiController();
-        getDefaultParams();
+        this(application, new RetargetlyParams.Builder(source_hash)
+                .forceGPS(forceGPS)
+                .build());
     }
 
     private Retargetly(Application application, String source_hash, Class classDeeplink,
                        boolean forceGPS) {
-        this.application = application;
-        this.manufacturer = Build.MANUFACTURER;
-        this.model = Build.MODEL;
-        this.idiome = Locale.getDefault().getLanguage();
-        this.source_hash = source_hash;
-        this.application.registerActivityLifecycleCallbacks(this);
-        this.forceGPS = forceGPS;
-        this.classDeeplink = classDeeplink;
-        apiController = new ApiController();
-        getDefaultParams();
+        this(application, new RetargetlyParams.Builder(source_hash)
+                .classDeeplink(classDeeplink)
+                .forceGPS(forceGPS)
+                .build());
     }
 
     private Retargetly(Application application, String source_hash, boolean forceGPS,
                        boolean sendGeoData) {
-        this.application = application;
-        this.manufacturer = Build.MANUFACTURER;
-        this.model = Build.MODEL;
-        this.idiome = Locale.getDefault().getLanguage();
-        this.source_hash = source_hash;
-        this.application.registerActivityLifecycleCallbacks(this);
-        this.forceGPS = forceGPS;
-        this.sendGeoData = sendGeoData;
-        apiController = new ApiController();
-        getDefaultParams();
+        this(application, new RetargetlyParams.Builder(source_hash)
+                .forceGPS(forceGPS)
+                .sendGeoData(sendGeoData)
+                .build());
     }
 
     private Retargetly(Application application, String source_hash, Class classDeeplink,
                        boolean forceGPS, boolean sendGeoData) {
+        this(application, new RetargetlyParams.Builder(source_hash)
+                .classDeeplink(classDeeplink)
+                .forceGPS(forceGPS)
+                .sendGeoData(sendGeoData)
+                .build());
+    }
+
+    public Retargetly(Application application, RetargetlyParams params) {
         this.application = application;
-        this.manufacturer = Build.MANUFACTURER;
-        this.model = Build.MODEL;
-        this.idiome = Locale.getDefault().getLanguage();
-        this.source_hash = source_hash;
+        this.params = params;
+        RetargetlyUtils.injectParam(application, params);
+        this.manufacturer =  RetargetlyUtils.getManufacturer();
+        this.model = RetargetlyUtils.getDeviceName();
+        this.idiome = RetargetlyUtils.getLanguage();
+        this.source_hash = params.getSourceHash();
         this.application.registerActivityLifecycleCallbacks(this);
-        this.forceGPS = forceGPS;
-        this.sendGeoData = sendGeoData;
-        this.classDeeplink = classDeeplink;
+        this.forceGPS = params.isForceGPS();
+        this.sendGeoData = params.isSendGeoData();
+        this.classDeeplink = params.getClassDeeplink();
         apiController = new ApiController();
         getDefaultParams();
     }
@@ -250,25 +229,31 @@ public class Retargetly implements Application.ActivityLifecycleCallbacks, Locat
     }
 
     private void getIp() {
-        NetworkBroadCastReceiver.getIp(application, new ApiController.ListenerSendInfo() {
-            @Override
-            public void finishRequest() {
-                application.sendBroadcast(new Intent("changedata"));
-                sendOpenEvent();
-            }
-        });
-        IntentFilter intentFilter = new IntentFilter(CONNECTIVITY_ACTION);
-        application.registerReceiver(new NetworkBroadCastReceiver(),
-                intentFilter);
+        if(params.isSendIpEnabled() || params.isSendNameWifiEnabled()){
+            NetworkBroadCastReceiver.getIp(application, params.isSendIpEnabled(),
+                    new ApiController.ListenerSendInfo() {
+                @Override
+                public void finishRequest() {
+                    application.sendBroadcast(new Intent("changedata"));
+                    sendOpenEvent();
+                }
+            });
+            IntentFilter intentFilter = new IntentFilter(CONNECTIVITY_ACTION);
+            application.registerReceiver(new NetworkBroadCastReceiver(),
+                    intentFilter);
+        }else{
+            sendOpenEvent();
+        }
     }
 
     private void sendOpenEvent() {
         RetargetlyUtils.LogR("Send open event");
+        String apps = RetargetlyUtils.getInstalledApps(application);
+        String country = RetargetlyUtils.getCurrentCountryIso();
         apiController.callCustomEvent(
-                new Event(RetargetlyUtils.getUID()
-                        ,source_hash, application.getPackageName(), manufacturer, model, idiome,
-                        RetargetlyUtils.getInstalledApps(application),
-                        application.getString(R.string.app_name)));
+                new Event(RetargetlyUtils.getUID(),source_hash,
+                        application.getPackageName(), manufacturer, model, idiome,
+                        apps, application.getString(R.string.app_name), country));
     }
 
     private void sendGeoEvent(Location location) {
