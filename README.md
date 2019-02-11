@@ -162,7 +162,7 @@ RetargetlyParams params = new RetargetlyParams.Builder(source_hash)
 
 ### Builder Parameters
 
-![Retargetly](https://github.com/retargetly/sdk-android/blob/master/retargetlyparams.png)
+![Builder Parameters](https://github.com/retargetly/sdk-android/blob/master/retargetlyparams.png)
 
 ### Deeplinks
 #### Send Deeplink event without response
